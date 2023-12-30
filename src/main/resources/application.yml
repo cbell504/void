@@ -1,0 +1,13 @@
+server: 8080
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/void
+        username: admin
+        password: admin
+#    jpa:
+#        hibernate:
+#            ddl-auto: create-drop
+        properties:
+            hibernate:
+                default_schema: void-api
+                dialect: org.hibernate.dialect.PostgreSQLDialect

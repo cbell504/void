@@ -1,0 +1,52 @@
+{
+    "name": "TheVoid",
+    "version": "2.3.0",
+    "description": "The Void Website",
+    "author": "Azurras",
+    "private": true,
+    "main": "server.js",
+    "scripts": {
+        "build": "webpack --mode production",
+        "start": "npm run build && node ./server.js",
+        "client": "webpack-dev-server --mode development --devtool inline-source-map --hot",
+        "server": "nodemon ./server.js",
+        "dev": "concurrently \"npm run server\" \"npm run client\""
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^6.3.0",
+        "axios": "^1.6.3",
+        "babel-polyfill": "^6.26.0",
+        "body-parser": "~1.20.1",
+        "cookie-parser": "^1.4.6",
+        "debug": "~4.3.4",
+        "material-design-icons": "^3.0.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.21.1"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.22.8",
+        "@babel/plugin-proposal-class-properties": "^7.18.6",
+        "@babel/preset-env": "^7.22.7",
+        "@babel/preset-react": "^7.22.5",
+        "babel-eslint": "^10.1.0",
+        "babel-loader": "^9.1.2",
+        "bootstrap": "^5.3.0",
+        "clean-webpack-plugin": "^4.0.0",
+        "concurrently": "^8.2.0",
+        "css-loader": "^6.7.3",
+        "eslint": "^8.44.0",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-plugin-import": "^2.27.5",
+        "eslint-plugin-jsx-a11y": "^6.7.1",
+        "eslint-plugin-react": "^7.32.2",
+        "file-loader": "^6.2.0",
+        "html-webpack-plugin": "^5.5.3",
+        "nodemon": "^2.0.21",
+        "style-loader": "^3.3.3",
+        "url-loader": "^4.1.1",
+        "webpack": "^5.88.1",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^4.15.1"
+    }
+}
