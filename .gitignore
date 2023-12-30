@@ -27,3 +27,6 @@ target/
 .DS_Store
 
 node_modules
+.idea
+package-lock.json
+yarn.lock
