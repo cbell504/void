@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Navigate } from 'react-router-dom';
-import './loginform.css';
+import './signupform.css';
 
-export default class LoginForm extends Component {
+export default class SignUpForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       email: '',
+      username: '',
       password: '',
       error: '',
       showPopup: false,
@@ -17,10 +18,16 @@ export default class LoginForm extends Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    const { email, password } = this.state;
+    const { email, username, password } = this.state;
     const clientId = 'void-client';
-    const url = '/api/accounts/v1/login';
-    const account = {"accountSecurity":{"email":email, "password":password}}
+    const url = '/api/accounts/v1/create';
+    const account = {
+      "username": username,
+      "accountSecurity": {
+        "email": email,
+        "password": password
+      }
+    };
     const options = {
       method: 'POST',
       headers: {
@@ -31,9 +38,9 @@ export default class LoginForm extends Component {
     };
     fetch(url, options)
       .then(response => {
-        if (response.status === 200) {
-          const loginToken = response.headers.get('loginToken');
-          localStorage.setItem('loginToken', loginToken);
+        if (response.status === 201) {
+          //const loginToken = response.headers.get('loginToken');
+          //localStorage.setItem('loginToken', loginToken);
           window.location.href = '/';
         } else {
           this.setState({
@@ -55,15 +62,17 @@ export default class LoginForm extends Component {
   }
 
   render() {
-    const { email, password, showPopup, popupMessage } = this.state;
+    const { email, username, password, showPopup, popupMessage } = this.state;
     return (
       <div className="login-form-container">
         <form onSubmit={this.handleSubmit}>
           <label htmlFor="email">Email:</label>
           <input type="email" id="email" name="email" value={email} onChange={this.handleChange} required />
+          <label htmlFor="username">Username:</label>
+          <input type="username" id="username" name="username" value={username} onChange={this.handleChange} required />
           <label htmlFor="password">Password:</label>
           <input type="password" id="password" name="password" value={password} onChange={this.handleChange} required />
-          <button type="submit">Login</button>
+          <button type="submit">Create Account</button>
         </form>
         {showPopup && (
           <div className="popup">
@@ -77,8 +86,8 @@ export default class LoginForm extends Component {
 }
 
 window.addEventListener('load', () => {
-  if (document.body.contains(document.getElementById('loginForm'))) {
+  if (document.body.contains(document.getElementById('signupform'))) {
     // Used to render the component on the page. The default refresh is when state is changed.
-    ReactDOM.render(<LoginForm />, document.getElementById('loginForm'));
+    ReactDOM.render(<SignUpForm />, document.getElementById('signupform'));
   }
 });
