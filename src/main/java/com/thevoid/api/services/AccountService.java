@@ -106,7 +106,7 @@ public class AccountService {
 
         var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
         var accountId = accountEntity.getId();
-        var accountSecurityEntity = this.accountMessenger.getAccountSecurityEntityById(accountId);
+        var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
         var dbLoginToken = accountSecurityEntity.getLoginToken();
         var response = new VoidResponse();
 
