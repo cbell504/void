@@ -29,4 +29,8 @@ public class VoidResponse extends Response {
     @JsonProperty("httpHeaders")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private HttpHeaders httpHeaders;
+
+    @JsonProperty("myself")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Account myself;
 }

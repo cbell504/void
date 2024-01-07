@@ -9,6 +9,7 @@ import com.thevoid.api.models.contracts.user.VoidRequest;
 import com.thevoid.api.models.contracts.user.VoidResponse;
 import com.thevoid.api.models.domain.account.AccountDetails;
 import com.thevoid.api.models.domain.account.AccountSecurity;
+import com.thevoid.api.models.domain.global.Message;
 import com.thevoid.api.repositories.AccountRepository;
 import com.thevoid.api.services.messengers.AccountMessenger;
 import com.thevoid.api.utils.ResponseUtil;
@@ -60,7 +61,7 @@ public class AccountService {
         ValidateUtil.isValidAccountStringItem(username);
 
         var accountOptional = this.accountRepository.findByUsername(username);
-        if(accountOptional.isEmpty()) {
+        if (accountOptional.isEmpty()) {
             var voidRoleEntity = this.mapStructMapper.mapToVoidRoleEntity(VoidRolesEnum.VOID_DWELLER);
             var accountEntity = this.mapStructMapper.mapToAccountEntity(account);
             accountEntity.setVoidRoleEntity(voidRoleEntity);
@@ -71,7 +72,12 @@ public class AccountService {
             accountDetailsEntity.setAccountEntity(accountEntity);
             var accountSecurityEntity = this.mapStructMapper.mapToAccountSecurityEntity(accountSecurity);
             accountSecurityEntity.setAccountEntity(accountEntity);
-            accountSecurityEntity.setLoginToken("");
+
+            //TODO: Clean this email before we do anything with it.
+            var email = accountSecurity.getEmail();
+            var jwt = this.permissionsService.generateJWT(email);
+
+            accountSecurityEntity.setLoginToken(jwt);
 
             // Save all entities to the DB
             this.accountMessenger.saveAccountRepository(accountEntity);
@@ -81,6 +87,9 @@ public class AccountService {
             account = this.mapStructMapper.mapToAccount(accountEntity);
             var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.CREATED);
             response.setAccounts(List.of(account));
+            var httpHeader = new HttpHeaders();
+            httpHeader.add("loginToken", jwt);
+            response.setHttpHeaders(httpHeader);
             return response;
         } else {
             // This means we found an account with this username already in the DB.
@@ -88,8 +97,37 @@ public class AccountService {
         }
     }
 
+    public VoidResponse currentAccount(String clientId, String loginToken, VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidRequestException {
+        ValidateUtil.validateAccount(voidRequest);
+        ValidateUtil.validateClientId(clientId);
+
+        var account = Objects.requireNonNullElse(voidRequest.getAccount(), new Account());
+        var username = Objects.requireNonNullElse(account.getUsername(), "");
+
+        var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
+        var accountId = accountEntity.getId();
+        var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
+        var dbLoginToken = accountSecurityEntity.getLoginToken();
+        var response = new VoidResponse();
+
+        if (dbLoginToken.equals(loginToken)) {
+            response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
+            var myself = this.mapStructMapper.mapToAccount(accountEntity);
+            response.setMyself(myself);
+
+            // TODO: Update the JWT token in and db and in the response.
+
+        } else {
+            var message = new Message();
+            message.setCode("");
+            message.setDescription("LoginToken Issue");
+            response = ResponseUtil.buildFailureResponse(HttpStatus.BAD_REQUEST, List.of(message));
+        }
+
+        return response;
+    }
+
     /**
-     *
      * @param clientId
      * @param voidRequest
      * @return
@@ -116,7 +154,7 @@ public class AccountService {
         var response = new VoidResponse();
 
         // Verify that the passwords are the same
-        if(isAccountPasswordValid) {
+        if (isAccountPasswordValid) {
             var jwt = this.permissionsService.generateJWT(email);
             response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
             var httpHeader = new HttpHeaders();
@@ -136,14 +174,13 @@ public class AccountService {
     public VoidResponse logoutAccount(String clientId, String loginToken, Long accountId) throws VoidAccountNotFoundException, VoidInvalidRequestException, VoidInvalidTokenException {
         ValidateUtil.validateClientId(clientId);
         var isLoginTokenValid = this.permissionsService.validateLoginToken(loginToken, accountId);
-        if(!isLoginTokenValid) {
+        if (!isLoginTokenValid) {
             throw new VoidInvalidRequestException();
         }
         var accountEntity = this.accountMessenger.getAccountEntityById(accountId);
         var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
         accountSecurityEntity.setLoginToken("");
-        var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-        return response;
+        return ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
     }
 
     public VoidResponse getAllAccounts(String clientId) throws VoidInvalidRequestException {
@@ -154,7 +191,7 @@ public class AccountService {
 
         var accountEntities = this.accountMessenger.getAccountEntities();
         var accounts = new ArrayList<Account>();
-        for(var accountEntity : accountEntities) {
+        for (var accountEntity : accountEntities) {
             var account = this.mapStructMapper.mapToAccount(accountEntity);
             var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
             account.setVoidRole(voidRoleEnum);
@@ -207,8 +244,6 @@ public class AccountService {
         log.info("Updating VoidRole for account with id:" + accountId);
         log.info("Request by ClientId: " + clientId);
 
-
-        var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-        return response;
+        return ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
     }
 }

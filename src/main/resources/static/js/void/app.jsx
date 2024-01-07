@@ -5,6 +5,7 @@ import Home from './home.jsx';
 import Login from './login.jsx';
 import Layout from './layout.jsx';
 import { NoMatch } from "./no-match.jsx";
+import SignUp from './signup.jsx';
 
 class App extends Component {
   render() {
@@ -14,6 +15,7 @@ class App extends Component {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
+          <Route path="signup" element={<SignUp />} />
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>
