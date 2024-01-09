@@ -97,7 +97,16 @@ public class AccountService {
         }
     }
 
-    public VoidResponse currentAccount(String clientId, String loginToken, VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidRequestException {
+    /**
+     * @param clientId    - id used to describe the client caller
+     * @param loginToken  - token a user receives after logging into their account
+     * @param voidRequest - standard request body for a Void API request
+     * @return response with details of the current user.
+     * @throws VoidAccountNotFoundException - if we can't match the username with one in the db
+     * @throws VoidInvalidRequestException  - if the requestBody is null
+     */
+    public VoidResponse getActiveAccount(String clientId, String loginToken, VoidRequest voidRequest)
+            throws VoidAccountNotFoundException, VoidInvalidRequestException {
         ValidateUtil.validateAccount(voidRequest);
         ValidateUtil.validateClientId(clientId);
 
@@ -105,7 +114,6 @@ public class AccountService {
         var username = Objects.requireNonNullElse(account.getUsername(), "");
 
         var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
-        var accountId = accountEntity.getId();
         var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
         var dbLoginToken = accountSecurityEntity.getLoginToken();
         var response = new VoidResponse();
@@ -114,22 +122,18 @@ public class AccountService {
             response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
             var myself = this.mapStructMapper.mapToAccount(accountEntity);
             response.setMyself(myself);
-
-            // TODO: Update the JWT token in and db and in the response.
-
         } else {
             var message = new Message();
             message.setCode("");
             message.setDescription("LoginToken Issue");
             response = ResponseUtil.buildFailureResponse(HttpStatus.BAD_REQUEST, List.of(message));
         }
-
         return response;
     }
 
     /**
-     * @param clientId
-     * @param voidRequest
+     * @param clientId    - id used to describe the client caller
+     * @param voidRequest - standard request body for a Void API request
      * @return
      * @throws VoidInvalidRequestException
      * @throws VoidAccountNotFoundException
@@ -155,14 +159,21 @@ public class AccountService {
 
         // Verify that the passwords are the same
         if (isAccountPasswordValid) {
+            // Generate and save the JWT to the DB
             var jwt = this.permissionsService.generateJWT(email);
-            response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-            var httpHeader = new HttpHeaders();
-            httpHeader.add("loginToken", jwt);
-            response.setHttpHeaders(httpHeader);
             var accountSecurityEntity = this.accountMessenger.getAccountSecurityEntityByEmail(email);
             accountSecurityEntity.setLoginToken(jwt);
             this.accountMessenger.saveAccountSecurityRepository(accountSecurityEntity);
+            // Pull our current account from accountSecurityEntity. We want to do this because when we first login,
+            // the frontend won't know much about this account. We want to give them the basic items need to make more
+            // request to the backend.
+            var accountEntity = accountSecurityEntity.getAccountEntity();
+            var myself = this.mapStructMapper.mapToAccount(accountEntity);
+            var httpHeader = new HttpHeaders();
+            httpHeader.add("loginToken", jwt);
+            response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
+            response.setHttpHeaders(httpHeader);
+            response.setMyself(myself);
         } else {
             //TODO: Make the message for this error
             response = ResponseUtil.buildFailureResponse(HttpStatus.BAD_REQUEST, null);
