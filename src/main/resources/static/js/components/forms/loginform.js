@@ -20,21 +20,26 @@ export default class LoginForm extends Component {
     const { email, password } = this.state;
     const clientId = 'void-client';
     const url = '/api/accounts/v1/login';
-    const account = {"accountSecurity":{"email":email, "password":password}}
+    const account = { "accountSecurity": { "email": email, "password": password } }
     const options = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'clientId': clientId
       },
-      body: JSON.stringify({account})
+      body: JSON.stringify({ account })
     };
+
     fetch(url, options)
       .then(response => {
         if (response.status === 200) {
           const loginToken = response.headers.get('loginToken');
-          localStorage.setItem('loginToken', loginToken);
-          window.location.href = '/';
+          localStorage.setItem('voidLoginToken', loginToken);
+          response.json().then(data => {
+            const accountId = data.myself.id
+            localStorage.setItem('voidAccountId', accountId);
+            window.location.href = '/';
+          });
         } else {
           this.setState({
             showPopup: true,

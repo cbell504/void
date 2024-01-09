@@ -89,11 +89,11 @@ public class AccountController {
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
 
-    @GetMapping(value = "/v1/current", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoidResponse> current(@RequestHeader String clientId,
-                                                @RequestHeader String loginToken,
-                                                @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountUserNameExistsException, VoidAccountNotFoundException {
-        var response = this.accountService.currentAccount(clientId, loginToken, voidRequest);
+    @GetMapping(value = "/v1/getActiveAccount", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<VoidResponse> getActiveAccount(@RequestHeader String clientId,
+                                                         @RequestHeader String loginToken,
+                                                         @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountUserNameExistsException, VoidAccountNotFoundException {
+        var response = this.accountService.getActiveAccount(clientId, loginToken, voidRequest);
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
 
