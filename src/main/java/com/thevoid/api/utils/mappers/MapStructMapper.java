@@ -1,10 +1,12 @@
 package com.thevoid.api.utils.mappers;
 
+import com.thevoid.api.models.db.InviteCodeEntity;
 import com.thevoid.api.models.db.VoidRoleEntity;
 import com.thevoid.api.models.db.account.AccountDetailsEntity;
 import com.thevoid.api.models.db.account.AccountEntity;
 import com.thevoid.api.models.db.CryEntity;
 import com.thevoid.api.models.db.account.AccountSecurityEntity;
+import com.thevoid.api.models.domain.InviteCode;
 import com.thevoid.api.models.domain.account.Account;
 import com.thevoid.api.models.domain.Cry;
 import com.thevoid.api.models.domain.account.AccountDetails;
@@ -25,6 +27,9 @@ public interface MapStructMapper {
     public AccountSecurity mapToAccountSecurity(AccountSecurityEntity accountSecurityEntity);
     public CryEntity mapToCryEntity(Cry cry);
     public Cry mapToCry(CryEntity cryEntity);
+
+    public InviteCodeEntity mapToInviteCodeEntity(InviteCode inviteCode);
+    public InviteCode mapToInviteCode(InviteCodeEntity inviteCodeEntity);
 
     public VoidRoleEntity mapToVoidRoleEntity(VoidRolesEnum voidRolesEnum);
     //public VoidRolesEnum mapToVoidRoleEnum(VoidRoleEntity voidRoleEntity);
