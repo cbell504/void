@@ -13,6 +13,8 @@ INSERT INTO void_api.void_role(role)
 VALUES ('VOID_WHISPER');
 INSERT INTO void_api.void_role(role)
 VALUES ('VOID_JAILER');
+INSERT INTO void_api.void_role(role)
+VALUES ('ADMIN');
 
 CREATE TABLE IF NOT EXISTS void_api.account(
   id serial PRIMARY KEY,
@@ -51,6 +53,13 @@ CREATE TABLE IF NOT EXISTS void_api.cry(
   expiration_date VARCHAR (50) NOT NULL,
   last_amplified_date VARCHAR (50),
   is_root_cry VARCHAR (50) NOT NULL,
+  account_id INT NOT NULL,
+  FOREIGN KEY (account_id) REFERENCES void_api.account (id)
+);
+
+CREATE TABLE IF NOT EXISTS void_api.invite_code(
+  id serial PRIMARY KEY,
+  code VARCHAR (50) UNIQUE NOT NULL,
   account_id INT NOT NULL,
   FOREIGN KEY (account_id) REFERENCES void_api.account (id)
 );

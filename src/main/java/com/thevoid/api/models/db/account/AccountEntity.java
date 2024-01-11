@@ -1,6 +1,7 @@
 package com.thevoid.api.models.db.account;
 
 import com.thevoid.api.models.db.CryEntity;
+import com.thevoid.api.models.db.InviteCodeEntity;
 import com.thevoid.api.models.db.VoidRoleEntity;
 import com.thevoid.api.models.domain.account.AccountDetails;
 import jakarta.persistence.*;
@@ -39,6 +40,9 @@ public class AccountEntity {
 
     @OneToOne(targetEntity = AccountSecurityEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AccountSecurityEntity accountSecurityEntity;
+
+    @OneToOne(targetEntity = InviteCodeEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private InviteCodeEntity inviteCodeEntity;
 
     //    private List<Account> followers;
 //    private List<Account> following;

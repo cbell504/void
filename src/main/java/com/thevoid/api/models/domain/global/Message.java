@@ -2,14 +2,19 @@ package com.thevoid.api.models.domain.global;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Message {
     @JsonProperty("code")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String code;
     @JsonProperty("description")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description;
 }
