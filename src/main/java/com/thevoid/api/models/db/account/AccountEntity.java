@@ -41,8 +41,8 @@ public class AccountEntity {
     @OneToOne(targetEntity = AccountSecurityEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private AccountSecurityEntity accountSecurityEntity;
 
-    @OneToOne(targetEntity = InviteCodeEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private InviteCodeEntity inviteCodeEntity;
+    @OneToMany(targetEntity = InviteCodeEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<InviteCodeEntity> inviteCodeEntities;
 
     //    private List<Account> followers;
 //    private List<Account> following;
