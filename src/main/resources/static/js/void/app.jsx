@@ -10,7 +10,7 @@ import SignUp from './signup.jsx';
 class App extends Component {
   render() {
     return (
-    <div>
+    <div id ="app-root">
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />

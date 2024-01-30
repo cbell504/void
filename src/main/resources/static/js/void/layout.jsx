@@ -3,26 +3,10 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Outlet, Link } from 'react-router-dom';
 import Navigation from "../components/nav/navigation.js"
 
-class Home extends Component {
+class Layout extends Component {
   render() {
     return (
-        <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-              <li>
-                <Link to="/signup">Sign Up</Link>
-              </li>
-              <li>
-                <Link to="/nothing-here">Nothing Here</Link>
-              </li>
-            </ul>
-          </nav>
+        <div id="layout">
           <Navigation />
           <Outlet />
         </div>
@@ -30,4 +14,4 @@ class Home extends Component {
   }
 }
 
-export default Home;
+export default Layout;

@@ -6,21 +6,42 @@ import Home from '../../void/home.jsx';
 import Login from '../../void/login.jsx';
 
 export default class Navigation extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isAccountLoggedIn: localStorage.hasOwnProperty('voidLoginToken') && localStorage.hasOwnProperty("voidAccountId"),
+      notLoggedInMessage: 'You are not logged in.',
+      responseData: null,
+      loading: true,
+    };
+  }
+
+  logout = (e) => {
+    e.preventDefault();
+    console.log("Logging out")
+    localStorage.removeItem('voidLoginToken');
+    localStorage.removeItem('voidAccountId');
+    window.location.href = '/';
+  }
+
   render() {
+    const { isAccountLoggedIn } = this.state;
     return (
       <nav className="navigation">
         <div className="logo">
-          <Link to="/">Your Logo</Link>
+          <Link to="/">The Void</Link>
         </div>
-        <ul className="nav-links">
-          <li>
-             <Link to="/login">Login</Link>
-          </li>
-        </ul>
-        <div className="auth-buttons">
-          <button className="login-button">Login</button>
-          <button className="signup-button">Sign Up</button>
-        </div>
+        {isAccountLoggedIn === false && (
+          <div className="auth-buttons">
+            <button className="login-button"> <Link to="/login">Login</Link></button>
+            <button className="signup-button"><Link to="/signup">Sign Up</Link></button>
+          </div>
+        )}
+        {isAccountLoggedIn && (
+          <div className="auth-buttons">
+            <button className="logout-button" onClick={this.logout}> <Link to="/">Logout</Link></button>
+          </div>
+        )}
       </nav>
     );
   }
