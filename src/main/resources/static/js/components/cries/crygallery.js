@@ -80,20 +80,19 @@ export default class CryGallery extends Component {
 
     render() {
         const { isAccountLoggedIn, notLoggedInMessage, responseData, loading } = this.state;
-        return (
-            <div className="cry-gallery">
-                {loading ? (<p>Loading...</p>) :
-                responseData.cries.map(cry => (
-                    <div className="cry-entry">
-                        <div className="cry-author">{cry.id}</div>
-                        <div className="cry-text">{cry.text}</div>
-                    </div>
-                ))}
-                {/* {isAccountLoggedIn === false && (
-                    <p>{notLoggedInMessage}</p>
-                )} */}
-            </div>
-        );
+        if(isAccountLoggedIn) {
+            return (
+                <div className="cry-gallery">
+                    {loading ? (<p>Loading...</p>) :
+                    responseData.cries.map(cry => (
+                        <div className="cry-entry">
+                            <div className="cry-author">{cry.id}</div>
+                            <div className="cry-text">{cry.text}</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
     }
 }
 
