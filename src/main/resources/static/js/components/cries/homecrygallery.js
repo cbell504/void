@@ -86,7 +86,7 @@ export default class HomeCryGallery extends Component {
                     {loading ? (<p>Loading...</p>) :
                     responseData.cries.map(cry => (
                         <div className="cry-entry">
-                            <div className="cry-author">{cry.id}</div>
+                            <div className="cry-author">{cry.author}</div>
                             <div className="cry-text">{cry.text}</div>
                         </div>
                     ))}

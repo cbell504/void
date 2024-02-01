@@ -17,7 +17,7 @@ class App extends Component {
                         <Route index element={<HomePage />} />
                         <Route path="login" element={<LoginPage />} />
                         <Route path="signup" element={<SignUpPage />} />
-                        <Route path="profile" element={<ProfilePage />} />
+                        <Route path="profile*" element={<ProfilePage />} />
                         <Route path="*" element={<NoMatch />} />
                     </Route>
                 </Routes>

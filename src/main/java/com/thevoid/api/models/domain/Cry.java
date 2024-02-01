@@ -1,6 +1,7 @@
 package com.thevoid.api.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.thevoid.api.models.domain.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,11 @@ public class Cry {
     @JsonProperty("text")
     private String text;
 
+    @JsonProperty("author")
+    private String author;
+
+    @JsonProperty("authorAccountId")
+    private String authorAccountId;
 
     //private AccountDto lastUserAmplified;
     //private List<CryDto> replies;

@@ -31,7 +31,7 @@ export default class Navigation extends Component {
         </div>
         {isAccountLoggedIn === false && (
           <div className="auth-buttons">
-            <button className="login-button"> <Link to="/login">Login</Link></button>
+            <button className="login-button"><Link to="/login">Login</Link></button>
             <button className="signup-button"><Link to="/signup">Sign Up</Link></button>
           </div>
         )}

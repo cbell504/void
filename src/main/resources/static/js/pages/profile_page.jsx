@@ -11,6 +11,7 @@ class ProfilePage extends Component {
     }
 
     render() {
+        //TODO: Get the username from the url and pass it to the profile cry gallery. then use the profile cry gallery to make the call for data with the username
         return (
             <div id="profile-page-root">
                 <ProfileCryGallery />

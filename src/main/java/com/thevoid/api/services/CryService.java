@@ -4,6 +4,7 @@ import com.thevoid.api.exceptions.VoidAccountNotFoundException;
 import com.thevoid.api.exceptions.VoidInvalidTokenException;
 import com.thevoid.api.models.contracts.user.VoidRequest;
 import com.thevoid.api.models.contracts.user.VoidResponse;
+import com.thevoid.api.models.db.account.AccountEntity;
 import com.thevoid.api.models.domain.Cry;
 import com.thevoid.api.services.messengers.AccountMessenger;
 import com.thevoid.api.services.messengers.CryMessenger;
@@ -63,7 +64,12 @@ public class CryService {
         var cryEntities = this.cryMessenger.findByAccountEntity(accountEntity);
         var cries = new ArrayList<Cry>();
         for(var cryEntity: cryEntities) {
+            var cryAuthorAccount = Objects.requireNonNullElse(cryEntity.getAccountEntity(), new AccountEntity());
+            var authorUsername = Objects.requireNonNullElse(cryAuthorAccount.getUsername(), "Anon");
+            var authorAccountId = Objects.requireNonNullElse(String.valueOf(cryAuthorAccount.getId()), "");
             var cry = this.mapStructMapper.mapToCry(cryEntity);
+            cry.setAuthor(authorUsername);
+            cry.setAuthorAccountId(authorAccountId);
             cries.add(cry);
         }
 
