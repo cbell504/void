@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './navigation.css';
-import Home from '../../void/home.jsx';
-import Login from '../../void/login.jsx';
 
 export default class Navigation extends Component {
   constructor(props) {
@@ -39,6 +37,7 @@ export default class Navigation extends Component {
         )}
         {isAccountLoggedIn && (
           <div className="auth-buttons">
+            <button className="profile-button"> <Link to="/profile">Profile</Link></button>
             <button className="logout-button" onClick={this.logout}> <Link to="/">Logout</Link></button>
           </div>
         )}

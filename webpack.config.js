@@ -13,7 +13,7 @@ module.exports = {
          * The list for React components starts here. Please keep these in
          * alphabetical order.
          */
-        './src/main/resources/static/js/void/main.js',
+        './src/main/resources/static/js/pages/main.js',
 //        './src/main/resources/static/js/components/forms/loginform.js',
 //        './src/main/resources/static/js/components/nav/navigation.js'
     ],
