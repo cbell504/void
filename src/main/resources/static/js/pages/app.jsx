@@ -4,7 +4,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import HomePage from './home_page.jsx';
 import LoginPage from './login_page.jsx';
 import Layout from './layout.jsx';
-import { NoMatch } from "./no-match.jsx";
+import NoMatch from "./no-match.jsx";
 import SignUpPage from './sign_up_page.jsx';
 import ProfilePage from './profile_page.jsx';
 
