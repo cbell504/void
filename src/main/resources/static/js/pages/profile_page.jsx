@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import SignUpForm from '../components/forms/signupform.js'
+import ProfileCryGallery from '../components/cries/profilecrygallery.js'
 
 class ProfilePage extends Component {
     constructor(props) {
@@ -9,10 +9,11 @@ class ProfilePage extends Component {
             isAccountLoggedIn: localStorage.hasOwnProperty('voidLoginToken') && localStorage.hasOwnProperty("voidAccountId")
         };
     }
-    
+
     render() {
         return (
             <div id="profile-page-root">
+                <ProfileCryGallery />
             </div>
         );
     }

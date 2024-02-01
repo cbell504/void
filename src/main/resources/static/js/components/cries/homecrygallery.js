@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Navigate } from 'react-router-dom';
 import './crygallery.css';
 
-export default class CryGallery extends Component {
+export default class HomeCryGallery extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -97,8 +97,8 @@ export default class CryGallery extends Component {
 }
 
 window.addEventListener('load', () => {
-    if (document.body.contains(document.getElementById('cryGallery'))) {
+    if (document.body.contains(document.getElementById('home-cry-gallery'))) {
         // Used to render the component on the page. The default refresh is when state is changed.
-        ReactDOM.render(<CryGallery />, document.getElementById('cryGallery'));
+        ReactDOM.render(<HomeCryGallery />, document.getElementById('home-cry-gallery'));
     }
 });

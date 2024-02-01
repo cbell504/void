@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import CryGallery from '../components/cries/crygallery.js'
+import HomeCryGallery from '../components/cries/homecrygallery.js'
 import CryPoster from '../components/forms/cryposter.js'
 
 class HomePage extends Component {
@@ -15,7 +15,7 @@ class HomePage extends Component {
         return (
             <div id="home-page-root">
                 <CryPoster />
-                <CryGallery />
+                <HomeCryGallery />
             </div>
         );
     }
