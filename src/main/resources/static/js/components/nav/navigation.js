@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './navigation.css';
+import Search from '../forms/search.js'
 
 export default class Navigation extends Component {
   constructor(props) {
@@ -29,6 +30,7 @@ export default class Navigation extends Component {
         <div className="logo">
           <Link to="/">The Void</Link>
         </div>
+        <Search />
         {isAccountLoggedIn === false && (
           <div className="auth-buttons">
             <button className="login-button"><Link to="/login">Login</Link></button>

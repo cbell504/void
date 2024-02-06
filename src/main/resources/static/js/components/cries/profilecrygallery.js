@@ -95,8 +95,8 @@ export default class ProfileCryGallery extends Component {
                     {loading ? (<p>Loading...</p>) :
                     responseData.cries.map(cry => (
                         <div className="cry-entry">
-                            {/* <div className="cry-author"><Link to={'/profile/' + cry.author}>{cry.author}</Link></div> */}
-                            <div className="cry-author" onClick={() => this.navigateToUserDetail(cry.author)}>{cry.author}</div>
+                            <div className="cry-author"><Link to={'/profile/' + cry.author}>{cry.author}</Link></div>
+                            {/* <div className="cry-author" onClick={() => this.navigateToUserDetail(cry.author)}>{cry.author}</div> */}
                             <div className="cry-text">{cry.text}</div>
                         </div>
                     ))}

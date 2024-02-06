@@ -37,7 +37,10 @@ public class CryService {
         this.permissionsService = permissionsService;
     }
 
-    public VoidResponse createCry(String loginToken, Long accountId, VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidTokenException {
+    public VoidResponse createCry(String clientId,
+                                  String loginToken,
+                                  Long accountId,
+                                  VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidTokenException {
         log.info("Request for all cries for given accountId: " + accountId);
 
         // Validate the token for the user
@@ -55,7 +58,7 @@ public class CryService {
         return ResponseUtil.buildSuccessfulResponse(HttpStatus.CREATED);
     }
 
-    public VoidResponse getAllCriesByAccountId(Long accountId) throws VoidAccountNotFoundException {
+    public VoidResponse getAllCriesByAccountId(String clientId, Long accountId) throws VoidAccountNotFoundException {
         //TODO: Write a test to see if this will prevent a DB attack
         //var username = Jsoup.clean(dirtyUsername, Safelist.basic());
         log.info("Request for all cries for given accountId: " + accountId);

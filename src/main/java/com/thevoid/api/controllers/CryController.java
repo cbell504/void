@@ -29,17 +29,19 @@ public class CryController {
     }
 
     @PostMapping(value = "/v1/create/account/{accountId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoidResponse> createCry(@RequestHeader String loginToken,
+    public ResponseEntity<VoidResponse> createCry(@RequestHeader String clientId,
+                                                  @RequestHeader String loginToken,
                                                   @PathVariable Long accountId,
                                                   @RequestBody VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidTokenException {
-        var response = this.cryService.createCry(loginToken, accountId, voidRequest);
+        var response = this.cryService.createCry(clientId, loginToken, accountId, voidRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping(value = "/v1/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoidResponse> getAllCriesByAccountId(@RequestHeader String loginToken,
+    public ResponseEntity<VoidResponse> getAllCriesByAccountId(@RequestHeader String clientId,
+                                                               @RequestHeader String loginToken,
                                                                @PathVariable Long accountId) throws VoidAccountNotFoundException {
-        var response = this.cryService.getAllCriesByAccountId(accountId);
+        var response = this.cryService.getAllCriesByAccountId(clientId, accountId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -84,7 +84,8 @@ public class AccountController {
      * @throws VoidAccountUserNameExistsException - thrown if no accounts are on file with that username
      */
     @PostMapping(value = "/v1/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoidResponse> createAccount(@RequestHeader String clientId, @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountUserNameExistsException {
+    public ResponseEntity<VoidResponse> createAccount(@RequestHeader String clientId,
+                                                      @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountUserNameExistsException {
         var response = this.accountService.createAccount(clientId, voidRequest);
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
@@ -108,7 +109,8 @@ public class AccountController {
      * @throws VoidAccountNotFoundException       - thrown if no accounts are on file with that username
      */
     @PostMapping(value = "/v1/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<VoidResponse> loginAccount(@RequestHeader String clientId, @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountNotFoundException {
+    public ResponseEntity<VoidResponse> loginAccount(@RequestHeader String clientId,
+                                                     @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountNotFoundException {
         var response = this.accountService.loginAccount(clientId, voidRequest);
         return new ResponseEntity<>(response, response.getHttpHeaders(), response.getHttpStatus());
     }

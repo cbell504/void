@@ -84,4 +84,8 @@ public class AccountMessenger {
     public void saveAccountSecurityRepository(AccountSecurityEntity accountSecurityEntity) {
         this.accountSecurityRepository.save(accountSecurityEntity);
     }
+
+    public List<AccountEntity> searchAccounts(String searchTerm) {
+        return this.accountRepository.findByUsernameContaining(searchTerm);
+    }
 }
