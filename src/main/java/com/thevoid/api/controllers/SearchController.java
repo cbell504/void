@@ -1,5 +1,6 @@
 package com.thevoid.api.controllers;
 
+import com.thevoid.api.exceptions.VoidInvalidRequestException;
 import com.thevoid.api.models.contracts.user.VoidResponse;
 import com.thevoid.api.services.SearchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class SearchController {
     //TODO: This endpoint needs some security
     @GetMapping(value = "/{searchTerm}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<VoidResponse> search(@RequestHeader String clientId,
-                                               @PathVariable String searchTerm) {
+                                               @PathVariable String searchTerm) throws VoidInvalidRequestException {
         var response = this.searchService.search(clientId, searchTerm);
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
