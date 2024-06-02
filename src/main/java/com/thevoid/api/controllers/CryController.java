@@ -1,7 +1,6 @@
 package com.thevoid.api.controllers;
 
 import com.thevoid.api.exceptions.VoidAccountNotFoundException;
-import com.thevoid.api.exceptions.VoidInvalidRequestException;
 import com.thevoid.api.exceptions.VoidInvalidTokenException;
 import com.thevoid.api.models.contracts.user.VoidRequest;
 import com.thevoid.api.models.contracts.user.VoidResponse;
