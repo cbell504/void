@@ -9,7 +9,7 @@ import com.thevoid.api.models.contracts.user.VoidRequest;
 import com.thevoid.api.models.contracts.user.VoidResponse;
 import com.thevoid.api.models.domain.account.AccountDetails;
 import com.thevoid.api.models.domain.account.AccountSecurity;
-import com.thevoid.api.models.domain.global.Message;
+import com.thevoid.api.models.contracts.global.Message;
 import com.thevoid.api.repositories.AccountRepository;
 import com.thevoid.api.services.messengers.AccountMessenger;
 import com.thevoid.api.utils.ResponseUtil;
@@ -58,7 +58,7 @@ public class AccountService {
         account.setVoidRole(VoidRolesEnum.VOID_DWELLER);
 
         var username = ValidateUtil.cleanUsername(account);
-        ValidateUtil.isValidAccountStringItem(username);
+        ValidateUtil.isValidUsername(username);
 
         var accountOptional = this.accountRepository.findByUsername(username);
         if (accountOptional.isEmpty()) {
@@ -85,15 +85,17 @@ public class AccountService {
             this.accountMessenger.saveAccountSecurityRepository(accountSecurityEntity);
 
             account = this.mapStructMapper.mapToAccount(accountEntity);
-            var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.CREATED);
-            response.setAccounts(List.of(account));
             var httpHeader = new HttpHeaders();
             httpHeader.add("loginToken", jwt);
-            response.setHttpHeaders(httpHeader);
-            return response;
+
+            return VoidResponse.builder()
+                .httpStatus(HttpStatus.CREATED)
+                .accounts(List.of(account))
+                .httpHeaders(httpHeader)
+                .build();
         } else {
             // This means we found an account with this username already in the DB.
-            throw new VoidAccountUserNameExistsException();
+            throw new VoidAccountUserNameExistsException("Account with this username already exists");
         }
     }
 
@@ -150,8 +152,8 @@ public class AccountService {
         var password = ValidateUtil.cleanPassword(accountSecurity);
 
         log.info("Validating email and password");
-        ValidateUtil.isValidAccountStringItem(email);
-        ValidateUtil.isValidAccountStringItem(password);
+        ValidateUtil.isValidEmail(email);
+        ValidateUtil.isValidPassword(password);
 
         // Validate Password
         var isAccountPasswordValid = this.permissionsService.validatePassword(email, password);

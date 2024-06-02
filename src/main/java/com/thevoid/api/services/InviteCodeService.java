@@ -8,7 +8,7 @@ import com.thevoid.api.models.contracts.user.VoidRequest;
 import com.thevoid.api.models.contracts.user.VoidResponse;
 import com.thevoid.api.models.db.InviteCodeEntity;
 import com.thevoid.api.models.domain.account.Account;
-import com.thevoid.api.models.domain.global.Message;
+import com.thevoid.api.models.contracts.global.Message;
 import com.thevoid.api.services.messengers.AccountMessenger;
 import com.thevoid.api.services.messengers.InviteCodeMessenger;
 import com.thevoid.api.utils.ResponseUtil;

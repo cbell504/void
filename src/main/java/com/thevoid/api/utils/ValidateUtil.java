@@ -37,22 +37,36 @@ public final class ValidateUtil {
         return ACCEPTED_CLIENT_IDs.contains(clientId);
     }
 
-    public static void isValidAccountStringItem(String accountString) throws VoidInvalidRequestException {
+    public static void isValidUsername(String accountString) throws VoidInvalidRequestException {
         if(accountString.isBlank()) {
-            throw new VoidInvalidRequestException();
+            throw new VoidInvalidRequestException("The given username is not valid");
+        }
+    }
+
+    public static void isValidEmail(String accountString) throws VoidInvalidRequestException {
+        if(accountString.isBlank()) {
+            throw new VoidInvalidRequestException("The given email is not valid");
+        }
+    }
+
+    public static void isValidPassword(String accountString) throws VoidInvalidRequestException {
+        if(accountString.isBlank()) {
+            throw new VoidInvalidRequestException("The given password is not valid");
         }
     }
 
     public static void validateAccount(VoidRequest voidRequest) throws VoidInvalidRequestException {
-        if(Objects.isNull(voidRequest)
-                || Objects.isNull(voidRequest.getAccount())){
-            throw new VoidInvalidRequestException();
+        if(Objects.isNull(voidRequest)) {
+            throw new VoidInvalidRequestException("The request is null");
+        }
+        if(Objects.isNull(voidRequest.getAccount())){
+            throw new VoidInvalidRequestException("The request contains no account information");
         }
     }
 
     public static void validateClientId(String clientId) throws VoidInvalidRequestException {
         if(!ValidateUtil.isValidClientId(clientId)){
-            throw new VoidInvalidRequestException();
+            throw new VoidInvalidRequestException("The Client's ID is not valid.");
         }
     }
 }
