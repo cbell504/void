@@ -1,7 +1,7 @@
 package dev.christopherbell.thevoid.utils;
 
-import dev.christopherbell.thevoid.configs.Constants;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidRequestException;
+import com.christopherbell.dev.libs.common.api.common.APIConstants;
+import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.models.domain.account.AccountSecurity;
@@ -19,17 +19,17 @@ public final class ValidateUtil {
   );
 
   public static String cleanEmailAddress(AccountSecurity accountSecurity) {
-    var dirtyEmail = Objects.requireNonNullElse(accountSecurity.getEmail(), Constants.EMPTY_STRING);
+    var dirtyEmail = Objects.requireNonNullElse(accountSecurity.getEmail(), APIConstants.EMPTY_STRING);
     return Jsoup.clean(dirtyEmail, Safelist.basic());
   }
 
   public static String cleanPassword(AccountSecurity accountSecurity) {
-    var dirtyPassword = Objects.requireNonNullElse(accountSecurity.getPassword(), Constants.EMPTY_STRING);
+    var dirtyPassword = Objects.requireNonNullElse(accountSecurity.getPassword(), APIConstants.EMPTY_STRING);
     return Jsoup.clean(dirtyPassword, Safelist.basic());
   }
 
   public static String cleanUsername(Account account) {
-    var dirtyUsername = Objects.requireNonNullElse(account.getUsername(), Constants.EMPTY_STRING);
+    var dirtyUsername = Objects.requireNonNullElse(account.getUsername(), APIConstants.EMPTY_STRING);
     return Jsoup.clean(dirtyUsername, Safelist.basic());
   }
 
@@ -37,36 +37,36 @@ public final class ValidateUtil {
     return ACCEPTED_CLIENT_IDs.contains(clientId);
   }
 
-  public static void isValidUsername(String accountString) throws VoidInvalidRequestException {
+  public static void isValidUsername(String accountString) throws InvalidRequestException {
     if (accountString.isBlank()) {
-      throw new VoidInvalidRequestException("The given username is not valid");
+      throw new InvalidRequestException("The given username is not valid");
     }
   }
 
-  public static void isValidEmail(String accountString) throws VoidInvalidRequestException {
+  public static void isValidEmail(String accountString) throws InvalidRequestException {
     if (accountString.isBlank()) {
-      throw new VoidInvalidRequestException("The given email is not valid");
+      throw new InvalidRequestException("The given email is not valid");
     }
   }
 
-  public static void isValidPassword(String accountString) throws VoidInvalidRequestException {
+  public static void isValidPassword(String accountString) throws InvalidRequestException {
     if (accountString.isBlank()) {
-      throw new VoidInvalidRequestException("The given password is not valid");
+      throw new InvalidRequestException("The given password is not valid");
     }
   }
 
-  public static void validateAccount(VoidRequest voidRequest) throws VoidInvalidRequestException {
+  public static void validateAccount(VoidRequest voidRequest) throws InvalidRequestException {
     if (Objects.isNull(voidRequest)) {
-      throw new VoidInvalidRequestException("The request is null");
+      throw new InvalidRequestException("The request is null");
     }
     if (Objects.isNull(voidRequest.getAccount())) {
-      throw new VoidInvalidRequestException("The request contains no account information");
+      throw new InvalidRequestException("The request contains no account information");
     }
   }
 
-  public static void validateClientId(String clientId) throws VoidInvalidRequestException {
+  public static void validateClientId(String clientId) throws InvalidRequestException {
     if (!ValidateUtil.isValidClientId(clientId)) {
-      throw new VoidInvalidRequestException("The Client's ID is not valid.");
+      throw new InvalidRequestException("The Client's ID is not valid.");
     }
   }
 }

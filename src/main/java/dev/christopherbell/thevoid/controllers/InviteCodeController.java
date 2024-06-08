@@ -1,12 +1,14 @@
 package dev.christopherbell.thevoid.controllers;
 
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import com.christopherbell.dev.libs.common.api.contracts.Response;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.InviteCodeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,23 +18,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
+@RequestMapping("/api/invite/code")
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/invitecode")
 public class InviteCodeController {
 
   public final InviteCodeService inviteCodeService;
 
-  @Autowired
-  public InviteCodeController(InviteCodeService inviteCodeService) {
-    this.inviteCodeService = inviteCodeService;
-  }
-
-  @PostMapping(value = "/v1/generateInviteCode", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> generateInviteCode(@RequestHeader String clientId,
+  @PostMapping(value = "/v1", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Response<VoidResponse>> generateInviteCode(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @RequestBody VoidRequest voidRequest)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException, VoidInvalidTokenException {
-    var response = this.inviteCodeService.generateInviteCode(clientId, loginToken, voidRequest);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+      throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(inviteCodeService.generateInviteCode(clientId, loginToken, voidRequest))
+        .success(true)
+        .build(), HttpStatus.CREATED);
   }
 }

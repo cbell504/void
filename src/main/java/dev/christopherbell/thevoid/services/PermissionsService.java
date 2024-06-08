@@ -1,12 +1,12 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.repositories.AccountRepository;
 import dev.christopherbell.thevoid.repositories.AccountSecurityRepository;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,20 +14,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
+@Slf4j
 public class PermissionsService {
 
   private final AccountRepository accountRepository;
   private final AccountSecurityRepository accountSecurityRepository;
 
-  @Autowired
-  public PermissionsService(AccountRepository accountRepository,
-      AccountSecurityRepository accountSecurityRepository) {
-    this.accountRepository = accountRepository;
-    this.accountSecurityRepository = accountSecurityRepository;
-  }
-
+  /**
+   * @param email
+   * @return
+   */
   public String generateJWT(String email) {
     return Jwts.builder()
         //.claim("accountId", accountId)
@@ -39,26 +37,38 @@ public class PermissionsService {
         .compact();
   }
 
+  /**
+   * @param loginToken
+   * @param accountId
+   * @return
+   * @throws AccountNotFoundException
+   * @throws InvalidTokenException
+   */
   public boolean validateLoginToken(String loginToken, Long accountId)
-      throws VoidAccountNotFoundException, VoidInvalidTokenException {
+      throws AccountNotFoundException, InvalidTokenException {
     var maybeAccountEntity = this.accountRepository.findById(accountId);
     if (maybeAccountEntity.isEmpty()) {
-      throw new VoidAccountNotFoundException();
+      throw new AccountNotFoundException();
     }
     var accountEntity = maybeAccountEntity.get();
     var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
     var actualLoginToken = accountSecurityEntity.getLoginToken();
     if (actualLoginToken.isBlank()) {
-      throw new VoidInvalidTokenException();
+      throw new InvalidTokenException("Token is not valid.");
     }
     return loginToken.equals(actualLoginToken);
   }
 
-  public boolean validatePassword(String email, String password) throws VoidAccountNotFoundException {
+  /**
+   * @param email
+   * @param password
+   * @return
+   * @throws AccountNotFoundException
+   */
+  public boolean validatePassword(String email, String password) throws AccountNotFoundException {
     var maybeAccountSecurityEntity = this.accountSecurityRepository.findByEmail(email);
     if (maybeAccountSecurityEntity.isEmpty()) {
-      log.error("Account not found!");
-      throw new VoidAccountNotFoundException();
+      throw new AccountNotFoundException("No account found");
     }
     var accountSecurityEntity = maybeAccountSecurityEntity.get();
     // Get the current password from that account

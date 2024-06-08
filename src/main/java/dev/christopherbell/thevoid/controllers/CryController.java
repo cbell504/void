@@ -1,11 +1,12 @@
 package dev.christopherbell.thevoid.controllers;
 
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import com.christopherbell.dev.libs.common.api.contracts.Response;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.CryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,30 +18,31 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequestMapping("/api/cries")
+@RequiredArgsConstructor
+@RestController
 public class CryController {
 
   private final CryService cryService;
 
-  @Autowired
-  public CryController(CryService cryService) {
-    this.cryService = cryService;
-  }
 
-  @PostMapping(value = "/v1/create/account/{accountId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> createCry(@RequestHeader String loginToken,
+  @PostMapping(value = "/v1/create/cry/{accountId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Response<VoidResponse>> createCry(@RequestHeader String loginToken,
       @PathVariable Long accountId,
-      @RequestBody VoidRequest voidRequest) throws VoidAccountNotFoundException, VoidInvalidTokenException {
-    var response = this.cryService.createCry(loginToken, accountId, voidRequest);
-    return new ResponseEntity<>(response, HttpStatus.OK);
+      @RequestBody VoidRequest voidRequest) throws AccountNotFoundException, InvalidTokenException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(cryService.createCry(loginToken, accountId, voidRequest))
+        .success(true)
+        .build(), HttpStatus.CREATED);
   }
 
   @GetMapping(value = "/v1/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> getAllCriesByAccountId(@RequestHeader String loginToken,
-      @PathVariable Long accountId) throws VoidAccountNotFoundException {
-    var response = this.cryService.getAllCriesByAccountId(accountId);
-    return new ResponseEntity<>(response, HttpStatus.OK);
+  public ResponseEntity<Response<VoidResponse>> getAllCriesByAccountId(@RequestHeader String loginToken,
+      @PathVariable Long accountId) throws AccountNotFoundException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(cryService.getAllCriesByAccountId(accountId))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 
   // Get All Cries for a Given user

@@ -1,24 +1,23 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.domain.Cry;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
 import dev.christopherbell.thevoid.services.messengers.CryMessenger;
-import dev.christopherbell.thevoid.utils.ResponseUtil;
 import dev.christopherbell.thevoid.utils.mappers.MapStructMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
+@Slf4j
 public class CryService {
 
   private final AccountMessenger accountMessenger;
@@ -26,24 +25,22 @@ public class CryService {
   private final MapStructMapper mapStructMapper;
   private final PermissionsService permissionsService;
 
-  @Autowired
-  public CryService(AccountMessenger accountMessenger,
-      CryMessenger cryMessenger,
-      MapStructMapper mapStructMapper,
-      PermissionsService permissionsService) {
-    this.accountMessenger = accountMessenger;
-    this.cryMessenger = cryMessenger;
-    this.mapStructMapper = mapStructMapper;
-    this.permissionsService = permissionsService;
-  }
-
+  /**
+   *
+   * @param loginToken
+   * @param accountId
+   * @param voidRequest
+   * @return
+   * @throws AccountNotFoundException
+   * @throws InvalidTokenException
+   */
   public VoidResponse createCry(String loginToken, Long accountId, VoidRequest voidRequest)
-      throws VoidAccountNotFoundException, VoidInvalidTokenException {
+      throws AccountNotFoundException, InvalidTokenException {
     log.info("Request for all cries for given accountId: " + accountId);
 
     // Validate the token for the user
     if (!this.permissionsService.validateLoginToken(loginToken, accountId)) {
-      throw new VoidAccountNotFoundException();
+      throw new AccountNotFoundException();
     }
     var cry = Objects.requireNonNullElse(voidRequest.getCry(), new Cry());
 
@@ -53,10 +50,16 @@ public class CryService {
     cryEntity.setAccountEntity(accountEntity);
     this.cryMessenger.saveCryRepository(cryEntity);
 
-    return ResponseUtil.buildSuccessfulResponse(HttpStatus.CREATED);
+    return VoidResponse.builder().build();
   }
 
-  public VoidResponse getAllCriesByAccountId(Long accountId) throws VoidAccountNotFoundException {
+  /**
+   *
+   * @param accountId
+   * @return
+   * @throws AccountNotFoundException
+   */
+  public VoidResponse getAllCriesByAccountId(Long accountId) throws AccountNotFoundException {
     //TODO: Write a test to see if this will prevent a DB attack
     //var username = Jsoup.clean(dirtyUsername, Safelist.basic());
     log.info("Request for all cries for given accountId: " + accountId);
@@ -69,10 +72,9 @@ public class CryService {
       cries.add(cry);
     }
 
-    var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-    response.setCries(cries);
-
-    return response;
+    return VoidResponse.builder()
+        .cries(cries)
+        .build();
   }
 
 }

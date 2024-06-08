@@ -1,13 +1,15 @@
 package dev.christopherbell.thevoid.controllers;
 
-import dev.christopherbell.thevoid.exceptions.VoidInvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidAccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import com.christopherbell.dev.libs.common.api.contracts.Response;
+import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,29 +21,27 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
 @RequestMapping("/api/accounts")
+@RequiredArgsConstructor
+@RestController
 public class AccountController {
 
   private final AccountService accountService;
-
-  @Autowired
-  public AccountController(AccountService accountService) {
-    this.accountService = accountService;
-  }
 
   /**
    * Get all accounts on file, clientId is required.
    *
    * @param clientId - String value that represents the client's id
    * @return all accounts
-   * @throws VoidInvalidRequestException - thrown is request is considered invalid
+   * @throws InvalidRequestException - thrown is request is considered invalid
    */
   @GetMapping(value = "/v1", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> getAllAccounts(@RequestHeader String clientId)
-      throws VoidInvalidRequestException {
-    var response = this.accountService.getAllAccounts(clientId);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+  public ResponseEntity<Response<VoidResponse>> getAllAccounts(@RequestHeader String clientId)
+      throws InvalidRequestException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.getAllAccounts(clientId))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 
   /**
@@ -50,14 +50,16 @@ public class AccountController {
    * @param clientId  - String value that represents the client's id
    * @param accountId - Long value that represents the user's account id
    * @return an account for the given accountId
-   * @throws VoidInvalidRequestException  - thrown if client id is not found
-   * @throws VoidAccountNotFoundException - thrown if no accounts are on file with that id
+   * @throws InvalidRequestException  - thrown if client id is not found
+   * @throws AccountNotFoundException - thrown if no accounts are on file with that id
    */
   @GetMapping(value = "/v1/accountId/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> getAccountById(@RequestHeader String clientId,
-      @PathVariable Long accountId) throws VoidInvalidRequestException, VoidAccountNotFoundException {
-    var response = this.accountService.getAccountById(clientId, accountId);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+  public ResponseEntity<Response<VoidResponse>> getAccountById(@RequestHeader String clientId,
+      @PathVariable Long accountId) throws InvalidRequestException, AccountNotFoundException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.getAccountById(clientId, accountId))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 
   /**
@@ -66,14 +68,16 @@ public class AccountController {
    * @param clientId - String value that represents the client's id
    * @param username - String value that represents the account username
    * @return an account for the given username
-   * @throws VoidInvalidRequestException  - thrown if client id is not found
-   * @throws VoidAccountNotFoundException - thrown if no accounts are on file with that username
+   * @throws InvalidRequestException  - thrown if client id is not found
+   * @throws AccountNotFoundException - thrown if no accounts are on file with that username
    */
   @GetMapping(value = "/v1/username/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> getAccountByUsername(@RequestHeader String clientId,
-      @PathVariable String username) throws VoidInvalidRequestException, VoidAccountNotFoundException {
-    var response = this.accountService.getAccountByUsername(clientId, username);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+  public ResponseEntity<Response<VoidResponse>> getAccountByUsername(@RequestHeader String clientId,
+      @PathVariable String username) throws InvalidRequestException, AccountNotFoundException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.getAccountByUsername(clientId, username))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 
   /**
@@ -82,23 +86,37 @@ public class AccountController {
    * @param clientId    - String value that represents the client's id
    * @param voidRequest - Object containing details about the account to create
    * @return an account object if the creation was successful
-   * @throws VoidInvalidRequestException        - thrown if client id is not found
-   * @throws VoidAccountUserNameExistsException - thrown if no accounts are on file with that username
+   * @throws InvalidRequestException        - thrown if client id is not found
+   * @throws AccountUserNameExistsException - thrown if no accounts are on file with that username
    */
   @PostMapping(value = "/v1/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> createAccount(@RequestHeader String clientId,
-      @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException, VoidAccountUserNameExistsException {
-    var response = this.accountService.createAccount(clientId, voidRequest);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+  public ResponseEntity<Response<VoidResponse>> createAccount(@RequestHeader String clientId,
+      @RequestBody VoidRequest voidRequest) throws InvalidRequestException, AccountUserNameExistsException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.createAccount(clientId, voidRequest))
+        .success(true)
+        .build(), HttpStatus.CREATED);
   }
 
+  /**
+   * @param clientId
+   * @param loginToken
+   * @param voidRequest
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountUserNameExistsException
+   * @throws AccountNotFoundException
+   * @throws InvalidTokenException
+   */
   @GetMapping(value = "/v1/getActiveAccount", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> getActiveAccount(@RequestHeader String clientId,
+  public ResponseEntity<Response<VoidResponse>> getActiveAccount(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @RequestBody VoidRequest voidRequest)
-      throws VoidInvalidRequestException, VoidAccountUserNameExistsException, VoidAccountNotFoundException {
-    var response = this.accountService.getActiveAccount(clientId, loginToken, voidRequest);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+      throws InvalidRequestException, AccountUserNameExistsException, AccountNotFoundException, InvalidTokenException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.getActiveAccount(clientId, loginToken, voidRequest))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 
   /**
@@ -107,32 +125,58 @@ public class AccountController {
    * @param clientId    - String value that represents the client's id
    * @param voidRequest Object containing details about the account
    * @return a void response and a header containing the loginToken
-   * @throws VoidInvalidRequestException        - thrown if client id is not found
-   * @throws VoidAccountUserNameExistsException - thrown if no accounts are on file with that username
-   * @throws VoidAccountNotFoundException       - thrown if no accounts are on file with that username
+   * @throws AccountNotFoundException - thrown if no accounts are on file with that username
+   * @throws InvalidRequestException  - thrown if client id is not found
+   * @throws InvalidTokenException    - thrown is login info is not correct
    */
   @PostMapping(value = "/v1/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> loginAccount(@RequestHeader String clientId, @RequestBody VoidRequest voidRequest)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException {
+  public ResponseEntity<Response<VoidResponse>> loginAccount(@RequestHeader String clientId,
+      @RequestBody VoidRequest voidRequest)
+      throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
     var response = this.accountService.loginAccount(clientId, voidRequest);
-    return new ResponseEntity<>(response, response.getHttpHeaders(), response.getHttpStatus());
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(response)
+        .success(true)
+        .build(), response.getHttpHeaders(), HttpStatus.OK);
   }
 
+  /**
+   * @param clientId
+   * @param loginToken
+   * @param accountId
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountNotFoundException
+   * @throws InvalidTokenException
+   */
   @GetMapping(value = "/v1/logout/{accountId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> logoutAccount(@RequestHeader String clientId,
+  public ResponseEntity<Response<VoidResponse>> logoutAccount(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @PathVariable Long accountId)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException, VoidInvalidTokenException {
+      throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
     var response = this.accountService.logoutAccount(clientId, loginToken, accountId);
-    return new ResponseEntity<>(response, response.getHttpHeaders(), response.getHttpStatus());
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(response)
+        .success(true)
+        .build(), response.getHttpHeaders(), HttpStatus.OK);
   }
 
+  /**
+   * @param clientId
+   * @param loginToken
+   * @param accountID
+   * @param voidRequest
+   * @return
+   * @throws InvalidRequestException
+   */
   @PatchMapping(value = "/v1/{accountId}/updateRole", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<VoidResponse> updateRole(@RequestHeader String clientId,
+  public ResponseEntity<Response<VoidResponse>> updateRole(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @PathVariable Long accountID,
-      @RequestBody VoidRequest voidRequest) throws VoidInvalidRequestException {
-    var response = this.accountService.updateRole(clientId, accountID, voidRequest);
-    return new ResponseEntity<>(response, response.getHttpStatus());
+      @RequestBody VoidRequest voidRequest) throws InvalidRequestException {
+    return new ResponseEntity<>(Response.<VoidResponse>builder()
+        .payload(accountService.updateRole(clientId, accountID, voidRequest))
+        .success(true)
+        .build(), HttpStatus.OK);
   }
 }
