@@ -1,25 +1,22 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.VoidInvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.VoidAccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.VoidAccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidTokenException;
+import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
+import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.domain.account.AccountDetails;
 import dev.christopherbell.thevoid.models.domain.account.AccountSecurity;
-import dev.christopherbell.thevoid.models.contracts.global.Message;
 import dev.christopherbell.thevoid.repositories.AccountRepository;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
-import dev.christopherbell.thevoid.utils.ResponseUtil;
 import dev.christopherbell.thevoid.utils.ValidateUtil;
 import dev.christopherbell.thevoid.models.domain.VoidRolesEnum;
 import dev.christopherbell.thevoid.utils.mappers.MapStructMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -27,8 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@Slf4j
+@RequiredArgsConstructor
 @Service
+@Slf4j
 public class AccountService {
 
   private final AccountMessenger accountMessenger;
@@ -36,19 +34,16 @@ public class AccountService {
   private final MapStructMapper mapStructMapper;
   private final PermissionsService permissionsService;
 
-  @Autowired
-  public AccountService(AccountMessenger accountMessenger,
-      AccountRepository accountRepository,
-      MapStructMapper mapStructMapper,
-      PermissionsService permissionsService) {
-    this.accountMessenger = accountMessenger;
-    this.accountRepository = accountRepository;
-    this.mapStructMapper = mapStructMapper;
-    this.permissionsService = permissionsService;
-  }
-
+  /**
+   *
+   * @param clientId
+   * @param voidRequest
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountUserNameExistsException
+   */
   public VoidResponse createAccount(String clientId, VoidRequest voidRequest)
-      throws VoidInvalidRequestException, VoidAccountUserNameExistsException {
+      throws InvalidRequestException, AccountUserNameExistsException {
     log.info("Request for new Account");
     log.info("Request by ClientId: " + clientId);
     ValidateUtil.validateAccount(voidRequest);
@@ -63,7 +58,10 @@ public class AccountService {
     ValidateUtil.isValidUsername(username);
 
     var accountOptional = this.accountRepository.findByUsername(username);
-    if (accountOptional.isEmpty()) {
+    if (accountOptional.isPresent()) {
+      // This means we found an account with this username already in the DB.
+      throw new AccountUserNameExistsException("Account with this username already exists");
+    } else {
       var voidRoleEntity = this.mapStructMapper.mapToVoidRoleEntity(VoidRolesEnum.VOID_DWELLER);
       var accountEntity = this.mapStructMapper.mapToAccountEntity(account);
       accountEntity.setVoidRoleEntity(voidRoleEntity);
@@ -91,13 +89,9 @@ public class AccountService {
       httpHeader.add("loginToken", jwt);
 
       return VoidResponse.builder()
-          .httpStatus(HttpStatus.CREATED)
           .accounts(List.of(account))
           .httpHeaders(httpHeader)
           .build();
-    } else {
-      // This means we found an account with this username already in the DB.
-      throw new VoidAccountUserNameExistsException("Account with this username already exists");
     }
   }
 
@@ -106,11 +100,11 @@ public class AccountService {
    * @param loginToken  - token a user receives after logging into their account
    * @param voidRequest - standard request body for a Void API request
    * @return response with details of the current user.
-   * @throws VoidAccountNotFoundException - if we can't match the username with one in the db
-   * @throws VoidInvalidRequestException  - if the requestBody is null
+   * @throws AccountNotFoundException - if we can't match the username with one in the db
+   * @throws InvalidRequestException  - if the requestBody is null
    */
   public VoidResponse getActiveAccount(String clientId, String loginToken, VoidRequest voidRequest)
-      throws VoidAccountNotFoundException, VoidInvalidRequestException {
+      throws AccountNotFoundException, InvalidRequestException, InvalidTokenException {
     ValidateUtil.validateAccount(voidRequest);
     ValidateUtil.validateClientId(clientId);
 
@@ -120,30 +114,25 @@ public class AccountService {
     var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
     var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
     var dbLoginToken = accountSecurityEntity.getLoginToken();
-    var response = new VoidResponse();
 
-    if (dbLoginToken.equals(loginToken)) {
-      response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-      var myself = this.mapStructMapper.mapToAccount(accountEntity);
-      response.setMyself(myself);
-    } else {
-      var message = new Message();
-      message.setCode("");
-      message.setDescription("LoginToken Issue");
-      response = ResponseUtil.buildFailureResponse(HttpStatus.BAD_REQUEST, List.of(message));
+    if (!dbLoginToken.equals(loginToken)) {
+      throw new InvalidTokenException("Login token is not valid");
     }
-    return response;
+
+    return VoidResponse.builder()
+        .myself(this.mapStructMapper.mapToAccount(accountEntity))
+        .build();
   }
 
   /**
    * @param clientId    - id used to describe the client caller
    * @param voidRequest - standard request body for a Void API request
    * @return
-   * @throws VoidInvalidRequestException
-   * @throws VoidAccountNotFoundException
+   * @throws InvalidRequestException
+   * @throws AccountNotFoundException
    */
   public VoidResponse loginAccount(String clientId, VoidRequest voidRequest)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException {
+      throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
     log.info("Request to login for clientId: {}", clientId);
     ValidateUtil.validateAccount(voidRequest);
     ValidateUtil.validateClientId(clientId);
@@ -163,7 +152,9 @@ public class AccountService {
     var response = new VoidResponse();
 
     // Verify that the passwords are the same
-    if (isAccountPasswordValid) {
+    if (!isAccountPasswordValid) {
+      throw new InvalidTokenException("Token not valid");
+    } else {
       // Generate and save the JWT to the DB
       var jwt = this.permissionsService.generateJWT(email);
       var accountSecurityEntity = this.accountMessenger.getAccountSecurityEntityByEmail(email);
@@ -173,34 +164,48 @@ public class AccountService {
       // the frontend won't know much about this account. We want to give them the basic items need to make more
       // request to the backend.
       var accountEntity = accountSecurityEntity.getAccountEntity();
-      var myself = this.mapStructMapper.mapToAccount(accountEntity);
       var httpHeader = new HttpHeaders();
       httpHeader.add("loginToken", jwt);
-      response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-      response.setHttpHeaders(httpHeader);
-      response.setMyself(myself);
-    } else {
-      //TODO: Make the message for this error
-      response = ResponseUtil.buildFailureResponse(HttpStatus.BAD_REQUEST, null);
-    }
 
-    return response;
+      return VoidResponse.builder()
+          .httpHeaders(httpHeader)
+          .myself(this.mapStructMapper.mapToAccount(accountEntity))
+          .build();
+    }
   }
 
+  /**
+   *
+   * @param clientId
+   * @param loginToken
+   * @param accountId
+   * @return
+   * @throws AccountNotFoundException
+   * @throws InvalidRequestException
+   * @throws InvalidTokenException
+   */
   public VoidResponse logoutAccount(String clientId, String loginToken, Long accountId)
-      throws VoidAccountNotFoundException, VoidInvalidRequestException, VoidInvalidTokenException {
+      throws AccountNotFoundException, InvalidRequestException, InvalidTokenException {
     ValidateUtil.validateClientId(clientId);
     var isLoginTokenValid = this.permissionsService.validateLoginToken(loginToken, accountId);
     if (!isLoginTokenValid) {
-      throw new VoidInvalidRequestException();
+      throw new InvalidTokenException("Token is not valid.");
     }
+
     var accountEntity = this.accountMessenger.getAccountEntityById(accountId);
     var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
     accountSecurityEntity.setLoginToken("");
-    return ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
+
+    return VoidResponse.builder().build();
   }
 
-  public VoidResponse getAllAccounts(String clientId) throws VoidInvalidRequestException {
+  /**
+   *
+   * @param clientId
+   * @return
+   * @throws InvalidRequestException
+   */
+  public VoidResponse getAllAccounts(String clientId) throws InvalidRequestException {
     log.info("Request for all Accounts");
     log.info("Request by ClientId: " + clientId);
 
@@ -214,14 +219,22 @@ public class AccountService {
       account.setVoidRole(voidRoleEnum);
       accounts.add(account);
     }
-    var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-    response.setAccounts(accounts);
 
-    return response;
+    return VoidResponse.builder()
+        .accounts(accounts)
+        .build();
   }
 
+  /**
+   *
+   * @param clientId
+   * @param accountId
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountNotFoundException
+   */
   public VoidResponse getAccountById(String clientId, Long accountId)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException {
+      throws InvalidRequestException, AccountNotFoundException {
     log.info("Requesting account with id:" + accountId);
     log.info("Request by ClientId: " + clientId);
 
@@ -234,14 +247,21 @@ public class AccountService {
     var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
     account.setVoidRole(voidRoleEnum);
 
-    var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-    response.setAccounts(List.of(account));
-
-    return response;
+    return VoidResponse.builder()
+        .accounts(List.of(account))
+        .build();
   }
 
+  /**
+   *
+   * @param clientId
+   * @param username
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountNotFoundException
+   */
   public VoidResponse getAccountByUsername(String clientId, String username)
-      throws VoidInvalidRequestException, VoidAccountNotFoundException {
+      throws InvalidRequestException, AccountNotFoundException {
     log.info("Requesting account with id:" + username);
     log.info("Request by ClientId: " + clientId);
 
@@ -251,19 +271,27 @@ public class AccountService {
     var account = this.mapStructMapper.mapToAccount(accountEntity);
     var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
     account.setVoidRole(voidRoleEnum);
-    var response = ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
-    response.setAccounts(List.of(account));
 
-    return response;
+    return VoidResponse.builder()
+        .accounts(List.of(account))
+        .build();
   }
 
+  /**
+   *
+   * @param clientId
+   * @param accountId
+   * @param voidRequest
+   * @return
+   * @throws InvalidRequestException
+   */
   public VoidResponse updateRole(String clientId, Long accountId, VoidRequest voidRequest)
-      throws VoidInvalidRequestException {
+      throws InvalidRequestException {
     ValidateUtil.validateAccount(voidRequest);
     ValidateUtil.validateClientId(clientId);
     log.info("Updating VoidRole for account with id:" + accountId);
     log.info("Request by ClientId: " + clientId);
 
-    return ResponseUtil.buildSuccessfulResponse(HttpStatus.OK);
+    return VoidResponse.builder().build();
   }
 }

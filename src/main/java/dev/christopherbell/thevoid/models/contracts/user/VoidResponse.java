@@ -1,10 +1,10 @@
 package dev.christopherbell.thevoid.models.contracts.user;
 
+import com.christopherbell.dev.libs.common.api.contracts.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.christopherbell.thevoid.models.domain.Cry;
 import dev.christopherbell.thevoid.models.domain.InviteCode;
 import dev.christopherbell.thevoid.models.domain.account.Account;
-import dev.christopherbell.thevoid.models.contracts.global.Response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class VoidResponse<T> extends Response {
+public class VoidResponse {
 
   private List<Account> accounts;
   private List<Cry> cries;
@@ -28,5 +28,4 @@ public class VoidResponse<T> extends Response {
   private Account myself;
   private InviteCode inviteCode;
   private AccountLoginResponse accountLoginResponse;
-  private T payload;
 }

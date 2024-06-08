@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import dev.christopherbell.thevoid.exceptions.VoidAccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.VoidInvalidRequestException;
+import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
+import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.db.account.AccountEntity;
 import dev.christopherbell.thevoid.models.domain.account.Account;
@@ -44,7 +44,7 @@ public class AccountServiceTest {
    var clientId = "void-api";
 
     var exception = assertThrows(
-        VoidInvalidRequestException.class,
+        InvalidRequestException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
@@ -57,7 +57,7 @@ public class AccountServiceTest {
     var clientId = AccountStub.getClientId();
 
     var exception = assertThrows(
-        VoidInvalidRequestException.class,
+        InvalidRequestException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
@@ -72,7 +72,7 @@ public class AccountServiceTest {
     var clientId = AccountStub.getClientId();
 
     var exception = assertThrows(
-        VoidInvalidRequestException.class,
+        InvalidRequestException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
@@ -89,7 +89,7 @@ public class AccountServiceTest {
     var clientId = AccountStub.getClientId();
 
     var exception = assertThrows(
-        VoidInvalidRequestException.class,
+        InvalidRequestException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
@@ -106,7 +106,7 @@ public class AccountServiceTest {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(new AccountEntity()));
 
     var exception = assertThrows(
-        VoidAccountUserNameExistsException.class,
+        AccountUserNameExistsException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
