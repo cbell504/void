@@ -30,8 +30,8 @@ jobs:
     - name: Build with Maven
       run: mvn -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml -B package --file pom.xml
       env:
-        USER_NAME: ${{ secrets.GITHUB_USERNAME }}
-        ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        USERNAME: ${{ secrets.GITHUB_USERNAME }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
 #    - name: Update dependency graph
