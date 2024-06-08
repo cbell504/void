@@ -32,8 +32,8 @@ public class WebController {
    *
    * @return login/html
    */
-  @GetMapping(value = "/account/create")
+  @GetMapping(value = "/signup")
   public String getCreateAccountPage(HttpServletRequest request) {
-    return "create_account.html";
+    return "sign_up.html";
   }
 }

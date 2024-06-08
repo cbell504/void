@@ -42,6 +42,7 @@
 
 .login-button a:link, 
 .logout-button a:link,
+.profile-button a:link,
 .signup-button a:link {
   color: white;
   text-decoration: none;
@@ -49,6 +50,7 @@
 
 .login-button a:visited, 
 .logout-button a:visited,
+.profile-button a:visited,
 .signup-button a:visited {
   color: white;
   text-decoration: none;
