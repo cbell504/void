@@ -4,6 +4,7 @@ import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
 import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
+import dev.christopherbell.thevoid.models.db.account.AccountEntity;
 import dev.christopherbell.thevoid.models.domain.Cry;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
 import dev.christopherbell.thevoid.services.messengers.CryMessenger;
@@ -34,7 +35,7 @@ public class CryService {
    * @throws AccountNotFoundException
    * @throws InvalidTokenException
    */
-  public VoidResponse createCry(String loginToken, Long accountId, VoidRequest voidRequest)
+  public VoidResponse createCry(String clientId, String loginToken, Long accountId, VoidRequest voidRequest)
       throws AccountNotFoundException, InvalidTokenException {
     log.info("Request for all cries for given accountId: " + accountId);
 
@@ -59,7 +60,7 @@ public class CryService {
    * @return
    * @throws AccountNotFoundException
    */
-  public VoidResponse getAllCriesByAccountId(Long accountId) throws AccountNotFoundException {
+  public VoidResponse getAllCriesByAccountId(String clientId, Long accountId) throws AccountNotFoundException {
     //TODO: Write a test to see if this will prevent a DB attack
     //var username = Jsoup.clean(dirtyUsername, Safelist.basic());
     log.info("Request for all cries for given accountId: " + accountId);
@@ -68,7 +69,12 @@ public class CryService {
     var cryEntities = this.cryMessenger.findByAccountEntity(accountEntity);
     var cries = new ArrayList<Cry>();
     for (var cryEntity : cryEntities) {
+      var cryAuthorAccount = Objects.requireNonNullElse(cryEntity.getAccountEntity(), new AccountEntity());
+      var authorUsername = Objects.requireNonNullElse(cryAuthorAccount.getUsername(), "Anon");
+      var authorAccountId = Objects.requireNonNullElse(String.valueOf(cryAuthorAccount.getId()), "");
       var cry = this.mapStructMapper.mapToCry(cryEntity);
+      cry.setAuthor(authorUsername);
+      cry.setAuthorAccountId(authorAccountId);
       cries.add(cry);
     }
 

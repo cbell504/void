@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './crygallery.css';
 
-export default class CryGallery extends Component {
+export default class HomeCryGallery extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -86,7 +87,7 @@ export default class CryGallery extends Component {
                     {loading ? (<p>Loading...</p>) :
                     responseData.cries.map(cry => (
                         <div className="cry-entry">
-                            <div className="cry-author">{cry.id}</div>
+                            <div className="cry-author"><Link to={'/profile/' + cry.author}>{cry.author}</Link></div>
                             <div className="cry-text">{cry.text}</div>
                         </div>
                     ))}
@@ -97,8 +98,8 @@ export default class CryGallery extends Component {
 }
 
 window.addEventListener('load', () => {
-    if (document.body.contains(document.getElementById('cryGallery'))) {
+    if (document.body.contains(document.getElementById('home-cry-gallery'))) {
         // Used to render the component on the page. The default refresh is when state is changed.
-        ReactDOM.render(<CryGallery />, document.getElementById('cryGallery'));
+        ReactDOM.render(<HomeCryGallery />, document.getElementById('home-cry-gallery'));
     }
 });

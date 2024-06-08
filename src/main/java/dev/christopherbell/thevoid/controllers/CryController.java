@@ -27,20 +27,22 @@ public class CryController {
 
 
   @PostMapping(value = "/v1/create/cry/{accountId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Response<VoidResponse>> createCry(@RequestHeader String loginToken,
+  public ResponseEntity<Response<VoidResponse>> createCry(@RequestHeader String clientId,
+      @RequestHeader String loginToken,
       @PathVariable Long accountId,
       @RequestBody VoidRequest voidRequest) throws AccountNotFoundException, InvalidTokenException {
     return new ResponseEntity<>(Response.<VoidResponse>builder()
-        .payload(cryService.createCry(loginToken, accountId, voidRequest))
+        .payload(cryService.createCry(clientId, loginToken, accountId, voidRequest))
         .success(true)
         .build(), HttpStatus.CREATED);
   }
 
   @GetMapping(value = "/v1/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Response<VoidResponse>> getAllCriesByAccountId(@RequestHeader String loginToken,
+  public ResponseEntity<Response<VoidResponse>> getAllCriesByAccountId(@RequestHeader String clientId,
+      @RequestHeader String loginToken,
       @PathVariable Long accountId) throws AccountNotFoundException {
     return new ResponseEntity<>(Response.<VoidResponse>builder()
-        .payload(cryService.getAllCriesByAccountId(accountId))
+        .payload(cryService.getAllCriesByAccountId(clientId, accountId))
         .success(true)
         .build(), HttpStatus.OK);
   }

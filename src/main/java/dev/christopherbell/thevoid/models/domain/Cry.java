@@ -31,6 +31,12 @@ public class Cry {
   @JsonProperty("text")
   private String text;
 
+  @JsonProperty("author")
+  private String author;
+
+  @JsonProperty("authorAccountId")
+  private String authorAccountId;
+
   //private AccountDto lastUserAmplified;
   //private List<CryDto> replies;
 
