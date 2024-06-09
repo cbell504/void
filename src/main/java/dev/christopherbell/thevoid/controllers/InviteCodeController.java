@@ -1,9 +1,9 @@
 package dev.christopherbell.thevoid.controllers;
 
 import com.christopherbell.dev.libs.common.api.contracts.Response;
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import com.christopherbell.dev.libs.common.api.exceptions.AccountNotFoundException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.InviteCodeService;

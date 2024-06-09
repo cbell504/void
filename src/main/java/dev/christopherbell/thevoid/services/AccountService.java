@@ -1,9 +1,9 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import com.christopherbell.dev.libs.common.api.exceptions.AccountNotFoundException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidTokenException;
+import com.christopherbell.dev.libs.common.api.exceptions.ResourceExistsException;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
@@ -40,10 +40,10 @@ public class AccountService {
    * @param voidRequest
    * @return
    * @throws InvalidRequestException
-   * @throws AccountUserNameExistsException
+   * @throws ResourceExistsException
    */
   public VoidResponse createAccount(String clientId, VoidRequest voidRequest)
-      throws InvalidRequestException, AccountUserNameExistsException {
+      throws InvalidRequestException, ResourceExistsException {
     log.info("Request for new Account");
     log.info("Request by ClientId: " + clientId);
     ValidateUtil.validateAccount(voidRequest);
@@ -60,7 +60,7 @@ public class AccountService {
     var accountOptional = this.accountRepository.findByUsername(username);
     if (accountOptional.isPresent()) {
       // This means we found an account with this username already in the DB.
-      throw new AccountUserNameExistsException("Account with this username already exists");
+      throw new ResourceExistsException("Account with this username already exists");
     } else {
       var voidRoleEntity = this.mapStructMapper.mapToVoidRoleEntity(VoidRolesEnum.VOID_DWELLER);
       var accountEntity = this.mapStructMapper.mapToAccountEntity(account);

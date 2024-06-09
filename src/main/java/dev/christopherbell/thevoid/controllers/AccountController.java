@@ -1,10 +1,10 @@
 package dev.christopherbell.thevoid.controllers;
 
 import com.christopherbell.dev.libs.common.api.contracts.Response;
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import com.christopherbell.dev.libs.common.api.exceptions.AccountNotFoundException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidTokenException;
+import com.christopherbell.dev.libs.common.api.exceptions.ResourceExistsException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.AccountService;
@@ -87,11 +87,11 @@ public class AccountController {
    * @param voidRequest - Object containing details about the account to create
    * @return an account object if the creation was successful
    * @throws InvalidRequestException        - thrown if client id is not found
-   * @throws AccountUserNameExistsException - thrown if no accounts are on file with that username
+   * @throws ResourceExistsException - thrown if no accounts are on file with that username
    */
   @PostMapping(value = "/v1/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Response<VoidResponse>> createAccount(@RequestHeader String clientId,
-      @RequestBody VoidRequest voidRequest) throws InvalidRequestException, AccountUserNameExistsException {
+      @RequestBody VoidRequest voidRequest) throws InvalidRequestException, ResourceExistsException {
     return new ResponseEntity<>(Response.<VoidResponse>builder()
         .payload(accountService.createAccount(clientId, voidRequest))
         .success(true)
@@ -104,7 +104,7 @@ public class AccountController {
    * @param voidRequest
    * @return
    * @throws InvalidRequestException
-   * @throws AccountUserNameExistsException
+   * @throws ResourceExistsException
    * @throws AccountNotFoundException
    * @throws InvalidTokenException
    */
@@ -112,7 +112,7 @@ public class AccountController {
   public ResponseEntity<Response<VoidResponse>> getActiveAccount(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @RequestBody VoidRequest voidRequest)
-      throws InvalidRequestException, AccountUserNameExistsException, AccountNotFoundException, InvalidTokenException {
+      throws InvalidRequestException, ResourceExistsException, AccountNotFoundException, InvalidTokenException {
     return new ResponseEntity<>(Response.<VoidResponse>builder()
         .payload(accountService.getActiveAccount(clientId, loginToken, voidRequest))
         .success(true)

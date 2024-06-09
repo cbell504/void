@@ -1,6 +1,6 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;

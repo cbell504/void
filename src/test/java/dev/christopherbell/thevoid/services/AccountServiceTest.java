@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
+import com.christopherbell.dev.libs.common.api.exceptions.ResourceExistsException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.db.account.AccountEntity;
 import dev.christopherbell.thevoid.models.domain.account.Account;
@@ -106,7 +106,7 @@ public class AccountServiceTest {
     when(accountRepository.findByUsername(anyString())).thenReturn(Optional.of(new AccountEntity()));
 
     var exception = assertThrows(
-        AccountUserNameExistsException.class,
+        ResourceExistsException.class,
         () -> accountService.createAccount(clientId, request)
     );
 
