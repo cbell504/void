@@ -1,6 +1,5 @@
 package dev.christopherbell.thevoid.models.contracts.user;
 
-import com.christopherbell.dev.libs.common.api.contracts.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.christopherbell.thevoid.models.domain.Cry;
 import dev.christopherbell.thevoid.models.domain.InviteCode;

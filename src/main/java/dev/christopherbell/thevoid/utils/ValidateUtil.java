@@ -1,7 +1,7 @@
 package dev.christopherbell.thevoid.utils;
 
-import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
-import com.christopherbell.dev.libs.common.api.utils.APIConstants;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.utils.APIConstants;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.models.domain.account.AccountSecurity;

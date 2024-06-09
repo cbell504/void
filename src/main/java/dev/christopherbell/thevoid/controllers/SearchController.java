@@ -1,7 +1,7 @@
 package dev.christopherbell.thevoid.controllers;
 
-import com.christopherbell.dev.libs.common.api.contracts.Response;
-import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.contracts.Response;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.SearchService;
 import lombok.RequiredArgsConstructor;

@@ -1,11 +1,11 @@
 package dev.christopherbell.thevoid.controllers;
 
-import com.christopherbell.dev.libs.common.api.contracts.Message;
-import com.christopherbell.dev.libs.common.api.contracts.Response;
-import com.christopherbell.dev.libs.common.api.exceptions.AccountNotFoundException;
-import com.christopherbell.dev.libs.common.api.exceptions.InvalidRequestException;
-import com.christopherbell.dev.libs.common.api.exceptions.InvalidTokenException;
-import com.christopherbell.dev.libs.common.api.exceptions.ResourceExistsException;
+import dev.christopherbell.libs.common.api.contracts.Message;
+import dev.christopherbell.libs.common.api.contracts.Response;
+import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.exceptions.ResourceExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
