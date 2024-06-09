@@ -3,6 +3,7 @@ package dev.christopherbell.thevoid.services;
 import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
 import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
 import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.utils.APIValidationUtils;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.db.InviteCodeEntity;
@@ -41,7 +42,7 @@ public class InviteCodeService {
   public VoidResponse generateInviteCode(String clientId, String loginToken, VoidRequest voidRequest)
       throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
     ValidateUtil.validateAccount(voidRequest);
-    ValidateUtil.validateClientId(clientId);
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
 
     var account = Objects.requireNonNullElse(voidRequest.getAccount(), new Account());
     var accountId = Objects.requireNonNullElse(account.getId(), 0L);

@@ -5,6 +5,8 @@ import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
 import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
 import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
 import dev.christopherbell.libs.common.api.exceptions.ResourceExistsException;
+import dev.christopherbell.thevoid.models.contracts.user.account.AccountResponse;
+import dev.christopherbell.thevoid.models.contracts.user.account.AccountsResponse;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.services.AccountService;
@@ -36,10 +38,10 @@ public class AccountController {
    * @throws InvalidRequestException - thrown is request is considered invalid
    */
   @GetMapping(value = "/v1", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Response<VoidResponse>> getAllAccounts(@RequestHeader String clientId)
+  public ResponseEntity<Response<AccountsResponse>> getAccounts(@RequestHeader String clientId)
       throws InvalidRequestException {
-    return new ResponseEntity<>(Response.<VoidResponse>builder()
-        .payload(accountService.getAllAccounts(clientId))
+    return new ResponseEntity<>(Response.<AccountsResponse>builder()
+        .payload(accountService.getAccounts(clientId))
         .success(true)
         .build(), HttpStatus.OK);
   }
@@ -54,9 +56,9 @@ public class AccountController {
    * @throws AccountNotFoundException - thrown if no accounts are on file with that id
    */
   @GetMapping(value = "/v1/accountId/{accountId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Response<VoidResponse>> getAccountById(@RequestHeader String clientId,
+  public ResponseEntity<Response<AccountResponse>> getAccountById(@RequestHeader String clientId,
       @PathVariable Long accountId) throws InvalidRequestException, AccountNotFoundException {
-    return new ResponseEntity<>(Response.<VoidResponse>builder()
+    return new ResponseEntity<>(Response.<AccountResponse>builder()
         .payload(accountService.getAccountById(clientId, accountId))
         .success(true)
         .build(), HttpStatus.OK);
@@ -109,11 +111,11 @@ public class AccountController {
    * @throws InvalidTokenException
    */
   @GetMapping(value = "/v1/getActiveAccount", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Response<VoidResponse>> getActiveAccount(@RequestHeader String clientId,
+  public ResponseEntity<Response<AccountResponse>> getActiveAccount(@RequestHeader String clientId,
       @RequestHeader String loginToken,
       @RequestBody VoidRequest voidRequest)
       throws InvalidRequestException, ResourceExistsException, AccountNotFoundException, InvalidTokenException {
-    return new ResponseEntity<>(Response.<VoidResponse>builder()
+    return new ResponseEntity<>(Response.<AccountResponse>builder()
         .payload(accountService.getActiveAccount(clientId, loginToken, voidRequest))
         .success(true)
         .build(), HttpStatus.OK);
