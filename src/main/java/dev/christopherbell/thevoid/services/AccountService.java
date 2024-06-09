@@ -1,9 +1,13 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.exceptions.ResourceExistsException;
+import dev.christopherbell.libs.common.api.utils.APIConstants;
+import dev.christopherbell.libs.common.api.utils.APIValidationUtils;
+import dev.christopherbell.thevoid.models.contracts.user.account.AccountResponse;
+import dev.christopherbell.thevoid.models.contracts.user.account.AccountsResponse;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.models.contracts.user.VoidRequest;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
@@ -35,32 +39,34 @@ public class AccountService {
   private final PermissionsService permissionsService;
 
   /**
-   *
    * @param clientId
    * @param voidRequest
    * @return
    * @throws InvalidRequestException
-   * @throws AccountUserNameExistsException
+   * @throws ResourceExistsException
    */
   public VoidResponse createAccount(String clientId, VoidRequest voidRequest)
-      throws InvalidRequestException, AccountUserNameExistsException {
-    log.info("Request for new Account");
-    log.info("Request by ClientId: " + clientId);
-    ValidateUtil.validateAccount(voidRequest);
-    ValidateUtil.validateClientId(clientId);
+      throws InvalidRequestException, ResourceExistsException {
+    log.info("Request to create a new account by clientId: {}", clientId);
 
-    var account = Objects.requireNonNullElse(voidRequest.getAccount(), new Account());
+    // Validate account
+    ValidateUtil.validateAccount(voidRequest);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
+    var account = voidRequest.getAccount();
     var accountDetails = Objects.requireNonNullElse(account.getAccountDetails(), new AccountDetails());
     var accountSecurity = Objects.requireNonNullElse(account.getAccountSecurity(), new AccountSecurity());
     account.setVoidRole(VoidRolesEnum.VOID_DWELLER);
 
-    var username = ValidateUtil.cleanUsername(account);
-    ValidateUtil.isValidUsername(username);
+    var username = ValidateUtil.getCleanUsername(account);
+    APIValidationUtils.isValidResource(APIConstants.VALIDATION_BAD_USERNAME, username);
 
     var accountOptional = this.accountRepository.findByUsername(username);
     if (accountOptional.isPresent()) {
-      // This means we found an account with this username already in the DB.
-      throw new AccountUserNameExistsException("Account with this username already exists");
+      // The username already exist in our database so throw an exception
+      throw new ResourceExistsException("Account with this username already exists");
     } else {
       var voidRoleEntity = this.mapStructMapper.mapToVoidRoleEntity(VoidRolesEnum.VOID_DWELLER);
       var accountEntity = this.mapStructMapper.mapToAccountEntity(account);
@@ -73,8 +79,7 @@ public class AccountService {
       var accountSecurityEntity = this.mapStructMapper.mapToAccountSecurityEntity(accountSecurity);
       accountSecurityEntity.setAccountEntity(accountEntity);
 
-      //TODO: Clean this email before we do anything with it.
-      var email = accountSecurity.getEmail();
+      var email = ValidateUtil.getCleanEmailAddress(accountSecurity);
       var jwt = this.permissionsService.generateJWT(email);
 
       accountSecurityEntity.setLoginToken(jwt);
@@ -96,6 +101,57 @@ public class AccountService {
   }
 
   /**
+   * Returns a list of all accounts.
+   * @param clientId id of the request.
+   * @return AccountResponse containing a list of accounts.
+   * @throws InvalidRequestException if the client id is not valid.
+   */
+  public AccountsResponse getAccounts(String clientId) throws InvalidRequestException {
+    log.info("Request for all Accounts by clientId: {}", clientId);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
+    var accountEntities = this.accountMessenger.getAccountEntities();
+    var accounts = new ArrayList<Account>();
+    for (var accountEntity : accountEntities) {
+      var account = this.mapStructMapper.mapToAccount(accountEntity);
+      var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
+      account.setVoidRole(voidRoleEnum);
+      accounts.add(account);
+    }
+
+    return AccountsResponse.builder()
+        .accounts(accounts)
+        .build();
+  }
+
+  /**
+   * @param clientId
+   * @param accountId
+   * @return
+   * @throws InvalidRequestException
+   * @throws AccountNotFoundException
+   */
+  public AccountResponse getAccountById(String clientId, Long accountId)
+      throws InvalidRequestException, AccountNotFoundException {
+    log.info("Request for account with id: {} by clientId: {}", accountId, clientId);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
+    // Pull Account info
+    var accountEntity = this.accountMessenger.getAccountEntityById(accountId);
+    var account = this.mapStructMapper.mapToAccount(accountEntity);
+    var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
+    account.setVoidRole(voidRoleEnum);
+
+    return AccountResponse.builder()
+        .account(account)
+        .build();
+  }
+
+  /**
    * @param clientId    - id used to describe the client caller
    * @param loginToken  - token a user receives after logging into their account
    * @param voidRequest - standard request body for a Void API request
@@ -103,13 +159,18 @@ public class AccountService {
    * @throws AccountNotFoundException - if we can't match the username with one in the db
    * @throws InvalidRequestException  - if the requestBody is null
    */
-  public VoidResponse getActiveAccount(String clientId, String loginToken, VoidRequest voidRequest)
+  public AccountResponse getActiveAccount(String clientId, String loginToken, VoidRequest voidRequest)
       throws AccountNotFoundException, InvalidRequestException, InvalidTokenException {
-    ValidateUtil.validateAccount(voidRequest);
-    ValidateUtil.validateClientId(clientId);
+    log.info("Request for active account by clientId: {}", clientId);
 
-    var account = Objects.requireNonNullElse(voidRequest.getAccount(), new Account());
-    var username = Objects.requireNonNullElse(account.getUsername(), "");
+    // Validate inputs
+    ValidateUtil.validateAccount(voidRequest);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
+    var account = voidRequest.getAccount();
+    var username = ValidateUtil.getCleanUsername(account);
 
     var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
     var accountSecurityEntity = accountEntity.getAccountSecurityEntity();
@@ -119,8 +180,8 @@ public class AccountService {
       throw new InvalidTokenException("Login token is not valid");
     }
 
-    return VoidResponse.builder()
-        .myself(this.mapStructMapper.mapToAccount(accountEntity))
+    return AccountResponse.builder()
+        .account(this.mapStructMapper.mapToAccount(accountEntity))
         .build();
   }
 
@@ -133,19 +194,24 @@ public class AccountService {
    */
   public VoidResponse loginAccount(String clientId, VoidRequest voidRequest)
       throws InvalidRequestException, AccountNotFoundException, InvalidTokenException {
-    log.info("Request to login for clientId: {}", clientId);
+    log.info("Request to login by clientId: {}", clientId);
+
+    // Validate inputs
     ValidateUtil.validateAccount(voidRequest);
-    ValidateUtil.validateClientId(clientId);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
     var account = Objects.requireNonNullElse(voidRequest.getAccount(), new Account());
     var accountSecurity = Objects.requireNonNullElse(account.getAccountSecurity(), new AccountSecurity());
 
     // Clean up the email and password, then make sure they aren't empty
-    var email = ValidateUtil.cleanEmailAddress(accountSecurity);
-    var password = ValidateUtil.cleanPassword(accountSecurity);
+    var email = ValidateUtil.getCleanEmailAddress(accountSecurity);
+    var password = ValidateUtil.getCleanPassword(accountSecurity);
 
     log.info("Validating email and password");
-    ValidateUtil.isValidEmail(email);
-    ValidateUtil.isValidPassword(password);
+    APIValidationUtils.isValidResource(APIConstants.VALIDATION_BAD_EMAIL, email);
+    APIValidationUtils.isValidResource(APIConstants.VALIDATION_BAD_PASSWORD, password);
 
     // Validate Password
     var isAccountPasswordValid = this.permissionsService.validatePassword(email, password);
@@ -175,7 +241,6 @@ public class AccountService {
   }
 
   /**
-   *
    * @param clientId
    * @param loginToken
    * @param accountId
@@ -186,7 +251,11 @@ public class AccountService {
    */
   public VoidResponse logoutAccount(String clientId, String loginToken, Long accountId)
       throws AccountNotFoundException, InvalidRequestException, InvalidTokenException {
-    ValidateUtil.validateClientId(clientId);
+    log.info("Request to logout by clientId: {}", clientId);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
+
     var isLoginTokenValid = this.permissionsService.validateLoginToken(loginToken, accountId);
     if (!isLoginTokenValid) {
       throw new InvalidTokenException("Token is not valid.");
@@ -200,60 +269,6 @@ public class AccountService {
   }
 
   /**
-   *
-   * @param clientId
-   * @return
-   * @throws InvalidRequestException
-   */
-  public VoidResponse getAllAccounts(String clientId) throws InvalidRequestException {
-    log.info("Request for all Accounts");
-    log.info("Request by ClientId: " + clientId);
-
-    ValidateUtil.validateClientId(clientId);
-
-    var accountEntities = this.accountMessenger.getAccountEntities();
-    var accounts = new ArrayList<Account>();
-    for (var accountEntity : accountEntities) {
-      var account = this.mapStructMapper.mapToAccount(accountEntity);
-      var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
-      account.setVoidRole(voidRoleEnum);
-      accounts.add(account);
-    }
-
-    return VoidResponse.builder()
-        .accounts(accounts)
-        .build();
-  }
-
-  /**
-   *
-   * @param clientId
-   * @param accountId
-   * @return
-   * @throws InvalidRequestException
-   * @throws AccountNotFoundException
-   */
-  public VoidResponse getAccountById(String clientId, Long accountId)
-      throws InvalidRequestException, AccountNotFoundException {
-    log.info("Requesting account with id:" + accountId);
-    log.info("Request by ClientId: " + clientId);
-
-    // Validate inputs
-    ValidateUtil.validateClientId(clientId);
-
-    // Pull Account info
-    var accountEntity = this.accountMessenger.getAccountEntityById(accountId);
-    var account = this.mapStructMapper.mapToAccount(accountEntity);
-    var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
-    account.setVoidRole(voidRoleEnum);
-
-    return VoidResponse.builder()
-        .accounts(List.of(account))
-        .build();
-  }
-
-  /**
-   *
    * @param clientId
    * @param username
    * @return
@@ -262,10 +277,10 @@ public class AccountService {
    */
   public VoidResponse getAccountByUsername(String clientId, String username)
       throws InvalidRequestException, AccountNotFoundException {
-    log.info("Requesting account with id:" + username);
-    log.info("Request by ClientId: " + clientId);
+    log.info("Requesting account with username: {} by clientId: {}", username, clientId);
 
-    ValidateUtil.validateClientId(clientId);
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
 
     var accountEntity = this.accountMessenger.getAccountEntityByUsername(username);
     var account = this.mapStructMapper.mapToAccount(accountEntity);
@@ -278,7 +293,6 @@ public class AccountService {
   }
 
   /**
-   *
    * @param clientId
    * @param accountId
    * @param voidRequest
@@ -287,10 +301,14 @@ public class AccountService {
    */
   public VoidResponse updateRole(String clientId, Long accountId, VoidRequest voidRequest)
       throws InvalidRequestException {
+
+    log.info("Updating VoidRole for account with id: {} by clientID: {}", accountId, clientId);
+
+    // Validate inputs
     ValidateUtil.validateAccount(voidRequest);
-    ValidateUtil.validateClientId(clientId);
-    log.info("Updating VoidRole for account with id:" + accountId);
-    log.info("Request by ClientId: " + clientId);
+
+    // Validate clientId
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
 
     return VoidResponse.builder().build();
   }

@@ -90,9 +90,9 @@
 
     <!-- API Common Lib - Common API tools   -->
     <dependency>
-      <groupId>com.christopherbell.dev</groupId>
+      <groupId>dev.christopherbell.libs</groupId>
       <artifactId>lib-common-api</artifactId>
-      <version>2024.06.08.02</version>
+      <version>2024.06.08.05</version>
     </dependency>
   </dependencies>
 

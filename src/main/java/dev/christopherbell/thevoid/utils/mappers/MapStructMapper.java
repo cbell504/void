@@ -18,26 +18,27 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface MapStructMapper {
 
-  public AccountEntity mapToAccountEntity(Account account);
+  AccountEntity mapToAccountEntity(Account account);
 
-  public Account mapToAccount(AccountEntity accountEntity);
+  Account mapToAccount(AccountEntity accountEntity);
 
-  public AccountDetailsEntity mapToAccountDetailsEntity(AccountDetails accountDetails);
+  AccountDetailsEntity mapToAccountDetailsEntity(AccountDetails accountDetails);
 
-  public AccountDetails mapToAccountDetails(AccountDetailsEntity accountDetailsEntity);
+  AccountDetails mapToAccountDetails(AccountDetailsEntity accountDetailsEntity);
 
-  public AccountSecurityEntity mapToAccountSecurityEntity(AccountSecurity accountSecurity);
+  AccountSecurityEntity mapToAccountSecurityEntity(AccountSecurity accountSecurity);
 
-  public AccountSecurity mapToAccountSecurity(AccountSecurityEntity accountSecurityEntity);
+  AccountSecurity mapToAccountSecurity(AccountSecurityEntity accountSecurityEntity);
 
-  public CryEntity mapToCryEntity(Cry cry);
+  CryEntity mapToCryEntity(Cry cry);
 
-  public Cry mapToCry(CryEntity cryEntity);
+  Cry mapToCry(CryEntity cryEntity);
 
-  public InviteCodeEntity mapToInviteCodeEntity(InviteCode inviteCode);
+  InviteCodeEntity mapToInviteCodeEntity(InviteCode inviteCode);
 
-  public InviteCode mapToInviteCode(InviteCodeEntity inviteCodeEntity);
+  InviteCode mapToInviteCode(InviteCodeEntity inviteCodeEntity);
 
-  public VoidRoleEntity mapToVoidRoleEntity(VoidRolesEnum voidRolesEnum);
-  //public VoidRolesEnum mapToVoidRoleEnum(VoidRoleEntity voidRoleEntity);
+  VoidRoleEntity mapToVoidRoleEntity(VoidRolesEnum voidRolesEnum);
+
+  //VoidRolesEnum mapToVoidRoleEnum(VoidRoleEntity voidRoleEntity);
 }

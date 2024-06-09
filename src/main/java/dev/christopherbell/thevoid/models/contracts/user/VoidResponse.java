@@ -1,7 +1,7 @@
 package dev.christopherbell.thevoid.models.contracts.user;
 
-import com.christopherbell.dev.libs.common.api.contracts.Response;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dev.christopherbell.thevoid.models.contracts.user.account.AccountResponse;
 import dev.christopherbell.thevoid.models.domain.Cry;
 import dev.christopherbell.thevoid.models.domain.InviteCode;
 import dev.christopherbell.thevoid.models.domain.account.Account;
@@ -27,5 +27,5 @@ public class VoidResponse {
   private HttpHeaders httpHeaders;
   private Account myself;
   private InviteCode inviteCode;
-  private AccountLoginResponse accountLoginResponse;
+  private AccountResponse accountResponse;
 }

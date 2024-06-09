@@ -1,6 +1,7 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.utils.APIValidationUtils;
 import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.domain.account.Account;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
@@ -21,7 +22,7 @@ public class SearchService {
   private final MapStructMapper mapStructMapper;
 
   public VoidResponse search(String clientId, String searchTerm) throws InvalidRequestException {
-    ValidateUtil.validateClientId(clientId);
+    APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
     //TODO: Make sure search term isn't malicious
 
     var accountEntityResults = this.accountMessenger.searchAccounts(searchTerm);

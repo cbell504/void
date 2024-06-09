@@ -1,11 +1,11 @@
 package dev.christopherbell.thevoid.controllers;
 
-import com.christopherbell.dev.libs.common.api.contracts.Message;
-import com.christopherbell.dev.libs.common.api.contracts.Response;
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.AccountUserNameExistsException;
-import dev.christopherbell.thevoid.exceptions.InvalidRequestException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.contracts.Message;
+import dev.christopherbell.libs.common.api.contracts.Response;
+import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidRequestException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.exceptions.ResourceExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +49,8 @@ public class ControllerExceptionHandler {
             .build(), HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler({AccountUserNameExistsException.class})
-  public ResponseEntity<Response> handleAccountUserNameExists(AccountUserNameExistsException e) {
+  @ExceptionHandler({ResourceExistsException.class})
+  public ResponseEntity<Response> handleAccountUserNameExists(ResourceExistsException e) {
     log.error(e.getMessage(), e);
     return new ResponseEntity<>(
         Response.builder()

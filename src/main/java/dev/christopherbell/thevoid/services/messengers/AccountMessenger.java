@@ -1,6 +1,6 @@
 package dev.christopherbell.thevoid.services.messengers;
 
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
+import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
 import dev.christopherbell.thevoid.models.db.account.AccountDetailsEntity;
 import dev.christopherbell.thevoid.models.db.account.AccountEntity;
 import dev.christopherbell.thevoid.models.db.account.AccountSecurityEntity;

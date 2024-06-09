@@ -1,9 +1,9 @@
-package dev.christopherbell.thevoid.models.contracts.user;
+package dev.christopherbell.thevoid.models.contracts.user.account;
 
-import dev.christopherbell.libs.common.api.contracts.Request;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.christopherbell.thevoid.models.domain.Cry;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import dev.christopherbell.thevoid.models.contracts.user.VoidResponse;
 import dev.christopherbell.thevoid.models.domain.account.Account;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,12 +13,10 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @SuperBuilder
-public class VoidRequest extends Request {
+public class AccountResponse extends VoidResponse implements Serializable {
 
-  @JsonProperty("account")
   private Account account;
-  @JsonProperty("cry")
-  private Cry cry;
 }

@@ -4,7 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.ComponentScan;
 
-@ComponentScan("dev.christopherbell.thevoid")
+@ComponentScan({"dev.christopherbell.thevoid", "dev.christopherbell.libs"})
 @SpringBootApplication
 public class VoidApp {
 

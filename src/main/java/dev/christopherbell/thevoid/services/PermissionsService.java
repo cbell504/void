@@ -1,7 +1,7 @@
 package dev.christopherbell.thevoid.services;
 
-import dev.christopherbell.thevoid.exceptions.AccountNotFoundException;
-import dev.christopherbell.thevoid.exceptions.InvalidTokenException;
+import dev.christopherbell.libs.common.api.exceptions.AccountNotFoundException;
+import dev.christopherbell.libs.common.api.exceptions.InvalidTokenException;
 import dev.christopherbell.thevoid.repositories.AccountRepository;
 import dev.christopherbell.thevoid.repositories.AccountSecurityRepository;
 import io.jsonwebtoken.Jwts;
