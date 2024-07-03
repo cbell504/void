@@ -11,7 +11,7 @@
   </parent>
 
   <groupId>dev.christopherbell</groupId>
-  <artifactId>void</artifactId>
+  <artifactId>thevoid</artifactId>
   <version>1.0</version>
 
   <properties>
