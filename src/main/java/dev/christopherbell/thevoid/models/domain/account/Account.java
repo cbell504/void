@@ -7,14 +7,14 @@ import dev.christopherbell.thevoid.models.domain.VoidRolesEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
+import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
+@Data
+@NoArgsConstructor
 public class Account {
 
   @JsonProperty("accountDetails")

@@ -2,8 +2,10 @@ package dev.christopherbell.thevoid.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 
+@Builder
 @Data
 public class VoidRole {
 

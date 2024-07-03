@@ -15,17 +15,19 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@Builder
 @Entity
+@Getter
+@NoArgsConstructor
+@Setter
 @Table(name = "account", schema = "void_api")
 public class AccountEntity {
 
@@ -51,7 +53,4 @@ public class AccountEntity {
 
   @OneToMany(targetEntity = InviteCodeEntity.class, mappedBy = "accountEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<InviteCodeEntity> inviteCodeEntities;
-
-  //    private List<Account> followers;
-//    private List<Account> following;
 }

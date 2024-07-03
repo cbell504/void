@@ -1,5 +1,6 @@
 package dev.christopherbell.thevoid.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -15,8 +16,12 @@ import dev.christopherbell.thevoid.repositories.AccountRepository;
 import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
 import dev.christopherbell.thevoid.testutils.AccountStub;
 import dev.christopherbell.thevoid.utils.mappers.MapStructMapper;
+import dev.christopherbell.thevoid.utils.mappers.MapStructMapperImpl;
+import java.util.ArrayList;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,10 +37,16 @@ public class AccountServiceTest {
   private AccountMessenger accountMessenger;
   @Mock
   private AccountRepository accountRepository;
-  @Mock
+
   private MapStructMapper mapStructMapper;
   @Mock
   private PermissionsService permissionsService;
+
+  @BeforeEach
+  public void init() {
+    mapStructMapper = new MapStructMapperImpl();
+    accountService = new AccountService(accountMessenger, accountRepository, mapStructMapper, permissionsService);
+  }
 
   @Test
   public void createAccountTest_Failure_badClientId() {
@@ -112,5 +123,27 @@ public class AccountServiceTest {
     );
 
     assertTrue(exception.getMessage().contains("Account with this username already exists"));
+  }
+
+  @Test
+  public void getAccounts_success() throws InvalidRequestException {
+    var accountEntities = new ArrayList<AccountEntity>();
+    accountEntities.add(AccountStub.getAccountEntity());
+    accountEntities.add(AccountStub.getAccountEntity());
+    accountEntities.add(AccountStub.getAccountEntity());
+    accountEntities.add(AccountStub.getAccountEntity());
+
+    when(accountMessenger.getAccountEntities()).thenReturn(accountEntities);
+
+    var accountsResponse = accountService.getAccounts(AccountStub.getClientId());
+    var accounts = accountsResponse.getAccounts();
+    var firstActualAccount = accounts.getFirst();
+    var firstExpectedAccount = accountEntities.getFirst();
+
+    assertEquals(accounts.size(), 4);
+    assertEquals(firstActualAccount.getId(), firstExpectedAccount.getId());
+    assertEquals(firstActualAccount.getUsername(), firstExpectedAccount.getUsername());
+    assertEquals(firstActualAccount.getCries().size(), firstExpectedAccount.getCries().size());
+
   }
 }
