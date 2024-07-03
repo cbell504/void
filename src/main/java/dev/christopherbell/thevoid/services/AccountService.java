@@ -18,7 +18,7 @@ import dev.christopherbell.thevoid.services.messengers.AccountMessenger;
 import dev.christopherbell.thevoid.utils.ValidateUtil;
 import dev.christopherbell.thevoid.models.domain.VoidRolesEnum;
 import dev.christopherbell.thevoid.utils.mappers.MapStructMapper;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-@RequiredArgsConstructor
+/**
+ * Represents a service responsible for handling accounts and account information.
+ */
+@AllArgsConstructor
 @Service
 @Slf4j
 public class AccountService {
@@ -112,14 +115,13 @@ public class AccountService {
     // Validate clientId
     APIValidationUtils.isValidClientId(ValidateUtil.ACCEPTED_CLIENT_IDs, clientId);
 
-    var accountEntities = this.accountMessenger.getAccountEntities();
-    var accounts = new ArrayList<Account>();
-    for (var accountEntity : accountEntities) {
-      var account = this.mapStructMapper.mapToAccount(accountEntity);
+    var accountEntities = accountMessenger.getAccountEntities();
+    var accounts = accountEntities.stream().map(accountEntity -> {
+      var account = mapStructMapper.mapToAccount(accountEntity);
       var voidRoleEnum = VoidRolesEnum.valueOf(accountEntity.getVoidRoleEntity().getRole());
       account.setVoidRole(voidRoleEnum);
-      accounts.add(account);
-    }
+      return account;
+    }).toList();
 
     return AccountsResponse.builder()
         .accounts(accounts)

@@ -3,8 +3,8 @@ package dev.christopherbell.thevoid.models.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
+@Getter
 public enum VoidRolesEnum {
   VOID_DWELLER("VOID_DWELLER", 1L),
   VOID_LORD("VOID_LORD", 2L),
